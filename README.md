@@ -35,7 +35,7 @@ mixpanel.reset();
 
 ### Dependencies
 
-mixpanel-lite requires `window.localStorage` and `window.Promise`, these should exist in all modern browsers. An error will be thrown if they do not exist.
+mixpanel-lite requires `window.localStorage` and `window.Promise` which should exist in all modern browsers, an error will be thrown if not.
 
 ### Update .min files
 
