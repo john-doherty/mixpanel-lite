@@ -14,18 +14,21 @@
 
     var _trackingUrl = 'https://api.mixpanel.com/track/?data=';
     var _token = null;
+    var _debugging = false;
 
     // holds a copy of current request properties
     var _properties = {};
 
-    function init(token) {
+    function init(token, opts) {
 
         if (!token || token.trim() === '') throw new Error('Invalid Mixpanel token');
 
         _token = token;
+        _debugging = ((opts ||{}).debug === true);
 
         var uuid = getNewUUID();
 
+        // params -> https://help.mixpanel.com/hc/en-us/articles/115004613766-Default-Properties-Collected-by-Mixpanel
         _properties = {
             token: token,
             $current_url: window.location.href,
@@ -35,15 +38,22 @@
             $device: getDevice(),
             $screen_height: screen.height,
             $screen_width: screen.width,
-            $referrer: document.referrer,
-            $referring_domain: getReferringDomain(),
+            // $referrer: document.referrer,
+            // $referring_domain: getReferringDomain(),
+            $initial_referrer: '$direct',
+            $initial_referring_domain: '$direct',
             distinct_id: uuid,
             $device_id: uuid,
             mp_lib: 'mixpanel-lite',
             $lib_version: '1.0.0'
         };
 
-        console.log('mixpanel.init(\'' + _token + '\')');
+        if (_debugging) {
+            console.log('mixpanel.init(\'' + _token + '\')');
+        }
+
+        // execute a request
+        track('mp_page_view');
     }
 
     /**
@@ -52,7 +62,10 @@
     */
     function reset() {
         init(_token);
-        console.log('mixpanel.reset()');
+
+        if (_debugging) {
+            console.log('mixpanel.reset()');
+        }
     }
 
     /**
@@ -96,11 +109,14 @@
         // attempt to send
         send();
 
-        if (data) {
-            console.log('mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
-        }
-        else {
-            console.log('mixpanel.track(\'' + eventName + '\')');
+        if (_debugging) {
+            if (data) {
+                console.log('mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
+            }
+            else {
+                console.log('mixpanel.track(\'' + eventName + '\')');
+            }
+            console.dir(eventData);
         }
     }
 
@@ -114,15 +130,20 @@
 
         if (!id || id.trim() === '') throw new Error('Invalid id');
 
-        console.log('mixpanel.identify(\'' + id + '\')');
+        if (_debugging) {
+            console.log('mixpanel.identify(\'' + id + '\')');
+        }
 
+        // send identity request with old distinct id
         track('$identify', {
+            $anon_distinct_id: _properties.distinct_id,
             distinct_id: id,
-            $anon_distinct_id: _properties.distinct_id
+            $user_id: id
         });
 
-        // change the value for future requests
+        // change values for future requests
         _properties.distinct_id = id;
+        _properties.$user_id = id;
     }
 
     /**
