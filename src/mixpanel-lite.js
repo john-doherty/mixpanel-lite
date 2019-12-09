@@ -43,26 +43,26 @@
             $lib_version: '1.0.0'
         };
 
-        console.log('Mixpanel.init(\'' + _token + '\')');
+        console.log('mixpanel.init(\'' + _token + '\')');
     }
 
     /**
-    * Clears super properties and generates a new random distinct_id for this instance. 
+    * Clears super properties and generates a new random distinct_id for this instance.
     * Useful for clearing data when a user logs out.
     */
     function reset() {
         init(_token);
-        console.log('Mixpanel.reset()');
+        console.log('mixpanel.reset()');
     }
 
     /**
-    * Classic Mixpanel.track method
+    * Classic mixpanel.track method
     * @param {string} eventName - name of the event
     * @param {object} data - additional data to send with the event
     */
     function track(eventName, data) {
 
-        if (!_token) throw new Error('You must call Mixpanel.init(token) first');
+        if (!_token) throw new Error('You must call mixpanel.init(token) first');
         if (!eventName || eventName === '') throw new Error('Invalid eventName');
         if (data && typeof data !== 'object') throw new Error('Data param must be an object');
 
@@ -96,10 +96,10 @@
         send();
 
         if (data) {
-            console.log('Mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
+            console.log('mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
         }
         else {
-            console.log('Mixpanel.track(\'' + eventName + '\')');
+            console.log('mixpanel.track(\'' + eventName + '\')');
         }
     }
 
@@ -111,6 +111,8 @@
 
         if (!id || id.trim() === '') throw new Error('Invalid id');
 
+        console.log('mixpanel.identify(\'' + id + '\')');
+
         track('$identify', {
             distinct_id: id,
             $anon_distinct_id: _properties.distinct_id
@@ -118,8 +120,6 @@
 
         // change the value for future requests
         _properties.distinct_id = id;
-
-        console.log('Mixpanel.identify(\'' + id + '\')');
     }
 
     /**
