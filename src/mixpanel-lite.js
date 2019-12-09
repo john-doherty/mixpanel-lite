@@ -37,12 +37,12 @@
             $referring_domain: getReferringDomain(),
             distinct_id: getNewUUID()
         };
-    };
+    }
 
     // clear all properties but token
     function reset() {
         init(_token);
-    };
+    }
 
     /**
     * Classic Mixpanel.track method
@@ -64,7 +64,7 @@
         };
 
         // add custom event data
-        Object.keys(data).forEach(function(key) {
+        Object.keys(data || {}).forEach(function(key) {
             eventData.properties[key] = data[key];
         });
 
@@ -83,7 +83,7 @@
 
         // attempt to send
         send();
-    };
+    }
 
     /**
      * Assigns a user an identify (use this when the user has logged in)
@@ -100,7 +100,7 @@
 
         // change the value for future requests
         _properties.distinct_id = id;
-    };
+    }
 
     /**
     * Sends pending events to Mixpanel API
@@ -145,13 +145,13 @@
             // save incomplete requests for next time
             transactions.reset(incompleteRequests);
         });
-    };
+    }
 
     /* #region Helpers */
 
     function cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
-    };
+    }
 
     /**
      * Executes an array of function that return a promise in sequence
@@ -166,7 +166,7 @@
         });
 
         return result;
-    };
+    }
 
     /**
      * local storage helper for saving transactions in order
@@ -211,7 +211,7 @@
      */
     function base64Encode(str) {
         return window.btoa(unescape(encodeURIComponent(str)));
-    };
+    }
 
     /**
      * Gets the device type iPad, iPhone etc
@@ -235,7 +235,7 @@
         } else {
             return '';
         }
-    };
+    }
 
     /**
      * Gets the Operating System
@@ -264,7 +264,7 @@
         } else {
             return '';
         }
-    };
+    }
 
     /**
      * This function detects which browser is running this script.
@@ -321,7 +321,7 @@
         } else {
             return '';
         }
-    };
+    }
 
     /**
      * This function detects which browser version is running this script,
@@ -359,7 +359,7 @@
             return null;
         }
         return parseFloat(matches[matches.length - 2]);
-    };
+    }
 
     /**
      * Gets the referring domain
@@ -370,7 +370,7 @@
             return split[2];
         }
         return '';
-    };
+    }
 
     /**
      * Executes a HTTP GET request within a promise
@@ -403,10 +403,10 @@
                     }
                 }
             };
-    
+
             xhr.send();
         });
-    };
+    }
 
     /**
      * Generates a new distinct_id (code lifted from Mixpanel js)
@@ -419,22 +419,22 @@
         var T = function() {
             var d = 1 * new Date(),
                 i = 0;
-    
+
             // this while loop figures how many browser ticks go by
             // before 1*new Date() returns a new number, ie the amount
             // of ticks that go by per millisecond
             while (d == 1 * new Date()) {
                 i++;
             }
-    
+
             return d.toString(16) + i.toString(16);
         };
-    
+
         // Math.Random entropy
         var R = function() {
             return Math.random().toString(16).replace('.', '');
         };
-    
+
         // User agent entropy
         // This function takes the user agent string, and then xors
         // together each sequence of 8 bytes.  This produces a final
@@ -443,7 +443,7 @@
             var ua = navigator.userAgent,
                 i, ch, buffer = [],
                 ret = 0;
-    
+
             function xor(result, byte_array) {
                 var j, tmp = 0;
                 for (j = 0; j < byte_array.length; j++) {
@@ -451,7 +451,7 @@
                 }
                 return result ^ tmp;
             }
-    
+
             for (i = 0; i < ua.length; i++) {
                 ch = ua.charCodeAt(i);
                 buffer.unshift(ch & 0xFF);
@@ -460,17 +460,17 @@
                     buffer = [];
                 }
             }
-    
+
             if (buffer.length > 0) {
                 ret = xor(ret, buffer);
             }
-    
+
             return ret.toString(16);
         };
-    
+
         var se = (screen.height * screen.width).toString(16);
         return (T() + '-' + R() + '-' + UA() + '-' + se + '-' + T());
-    };
+    }
 
     /* #endregion */
 
