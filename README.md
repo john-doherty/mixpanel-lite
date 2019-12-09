@@ -1,6 +1,6 @@
 # mixpanel-lite
 
-This is a lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support. It weighs in at at 5.2k _(2.2k gzipped)_.
+This is a lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support. It weighs in at 5.2k _(2.2k gzipped)_.
 
 ## How offline works
 
