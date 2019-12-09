@@ -8,6 +8,12 @@ mixpanel-lite uses the Mixpanel [HTTP API](https://developer.mixpanel.com/docs/h
 
 ## Usage
 
+Add [mixpanel-lite.min.js](dist/mixpanel-lite.min.js) to your project:
+
+```html
+<script src="mixpanel-lite.min.js"></script>
+```
+
 I've only added the methods I need, we can tweak this overtime but it might be best to keep it _lite_
 
 ```js
