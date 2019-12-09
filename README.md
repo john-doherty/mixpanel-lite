@@ -35,6 +35,16 @@ mixpanel.reset();
 
 _We can build this out overtime, but it might be best we keep it _lite__
 
+## Contributing
+
+Pull requests are welcomed:
+
+1. Fork it!
+2. Create your feature branch: `git checkout -b my-new-feature`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin my-new-feature`
+5. Submit a pull request
+
 ### Dependencies
 
 mixpanel-lite uses `window.localStorage` and `window.Promise` which should exist in all modern browsers.
