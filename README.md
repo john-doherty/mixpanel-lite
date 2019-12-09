@@ -1,6 +1,6 @@
 # mixpanel-lite
 
-This is a lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support, weighing in at 6k _(2.6k gzipped)_.
+This is a lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support, weighing in at 5.3k _(2.2k gzipped)_.
 
 mixpanel-lite uses the Mixpanel [HTTP API](https://developer.mixpanel.com/docs/http). Requests are saved to localStorage `mixpanel-lite` first and are only removed from localStorage once the API confirms receipt, allowing the device to go on/offline without losing events.
 
