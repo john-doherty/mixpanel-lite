@@ -56,9 +56,10 @@
     }
 
     /**
-    * Classic mixpanel.track method
-    * @param {string} eventName - name of the event
-    * @param {object} data - additional data to send with the event
+    * Track an event.
+     * @param {String} eventName The name of the event. This can be anything the user does - 'Button Click', 'Sign Up', 'Item Purchased', etc.
+     * @param {Object} [data] A set of properties to include with the event you're sending. These describe the user who did the event or details about the event itself.
+     * @returns {void}
     */
     function track(eventName, data) {
 
@@ -104,8 +105,10 @@
     }
 
     /**
-     * Assigns a user an identify (use this when the user has logged in)
-     * @param {string} id - user identity in your system, could be email address
+     * Identify a user with a unique ID instead of a Mixpanel randomly generated distinct_id.
+     * If the method is never called, unique visitors will be identified by a UUID generated the first time they visit the site.
+     * @param {String} [id] A string that uniquely identifies a user. If not provided, the distinct_id from localStorage is used.
+     * @returns {void}
      */
     function identify(id) {
 
