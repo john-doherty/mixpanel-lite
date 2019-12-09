@@ -12,7 +12,8 @@
     if (!window.localStorage) throw new Error('localStorage not supported');
     if (!window.Promise) throw new Error('Promise not supported (try adding a polyfill)');
 
-    var _trackingUrl = 'https://api.mixpanel.com/track/?data=';
+    var _trackingUrl = 'https://api.mixpanel.com/track?ip=1&verbose=1&data=';
+    var _engageUrl = 'https://api.mixpanel.com/engage?ip=1&verbose=1&data=';
     var _token = null;
     var _debugging = false;
 
@@ -38,22 +39,17 @@
             $device: getDevice(),
             $screen_height: screen.height,
             $screen_width: screen.width,
-            // $referrer: document.referrer,
-            // $referring_domain: getReferringDomain(),
-            $initial_referrer: '$direct',
-            $initial_referring_domain: '$direct',
+            $referrer: document.referrer,
+            $referring_domain: getReferringDomain(),
             distinct_id: uuid,
             $device_id: uuid,
             mp_lib: 'mixpanel-lite',
-            $lib_version: '1.0.0'
+            $lib_version: '1.0.5'
         };
 
         if (_debugging) {
             console.log('mixpanel.init(\'' + _token + '\')');
         }
-
-        // execute a request
-        track('mp_page_view');
     }
 
     /**
@@ -92,9 +88,6 @@
         Object.keys(data || {}).forEach(function(key) {
             eventData.properties[key] = data[key];
         });
-
-        // add epoch time in seconds
-        eventData.properties.time = Date.now() / 1000;
 
         // remove empty properties
         Object.keys(eventData.properties).forEach(function(key) {
@@ -147,6 +140,44 @@
     }
 
     /**
+     * set properties on an user record in engage
+     * @param {object} data - properties to set
+     * @returns {void}
+     */
+    function setPeople(data) {
+
+        if (!data || typeof data !== 'object') throw new Error('Invalid data param, must be an object');
+
+        // user does not want to be tracked, exit
+        if (navigator.doNotTrack == 1) return;
+
+        var eventData = {
+            $token: _token,
+            $distinct_id: _properties.distinct_id,
+            $set: {}
+        };
+
+        // add custom event data
+        Object.keys(data || {}).forEach(function(key) {
+            eventData.$set[key] = data[key];
+        });
+
+        // remove empty properties
+        Object.keys(eventData.$set).forEach(function(key) {
+            if (!eventData.$set[key] || eventData.$set[key] === '') {
+                delete eventData.$set[key];
+            }
+        });
+
+        // save the event
+        transactions.add(eventData);
+
+        // attempt to send
+        send();
+    }
+
+
+    /**
     * Sends pending events to Mixpanel API
     */
     function send() {
@@ -159,11 +190,14 @@
             // we have to return a function to execute in sequence, otherwise they'll execute immediately
             return function() {
 
+                // depending on the update type, change the API URL (hacky)
+                var url = (item.$set) ? _engageUrl : _trackingUrl;
+
                 // encode the data so it can be sent via a HTTP GET (avoids preflight headers)
                 var dataToSend = base64Encode(JSON.stringify(item));
 
-                // generate mixpanel URL
-                var url = _trackingUrl + encodeURIComponent(dataToSend) + '&ip=1&verbose=1&_' + new Date().getTime();
+                // generate mixpanel URL (add timestamp to make it unique)
+                url += encodeURIComponent(dataToSend) + '&_=' + new Date().getTime();
 
                 // mark item as not complete, in case it fails
                 item.__completed = false;
@@ -489,7 +523,10 @@
         init: init,
         track: track,
         reset: reset,
-        identify: identify
+        identify: identify,
+        people: {
+            set: setPeople
+        }
     };
 
 })(this, document);

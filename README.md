@@ -23,6 +23,11 @@ mixpanel.init('your-token-here');
 // assign all future events to a user
 mixpanel.identify('user@email.com');
 
+// assign user info
+mixpanel.people.set({
+    $email: 'user@email.com' // only special properties need the $
+});
+
 // track an event
 mixpanel.track('Your Event Name' {
     firstName: 'Optional event property 1',
