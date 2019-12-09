@@ -234,21 +234,13 @@
 
         var ua = navigator.userAgent;
 
-        if (/Windows Phone/i.test(ua) || /WPDesktop/.test(ua)) {
-            return 'Windows Phone';
-        } else if (/iPad/.test(ua)) {
-            return 'iPad';
-        } else if (/iPod/.test(ua)) {
-            return 'iPod Touch';
-        } else if (/iPhone/.test(ua)) {
-            return 'iPhone';
-        } else if (/(BlackBerry|PlayBook|BB10)/i.test(ua)) {
-            return 'BlackBerry';
-        } else if (/Android/.test(ua)) {
-            return 'Android';
-        } else {
-            return '';
-        }
+        if (/Windows Phone/i.test(ua) || /WPDesktop/.test(ua)) return 'Windows Phone';
+        if (/iPad/.test(ua)) return 'iPad';
+        if (/iPod/.test(ua)) return 'iPod Touch';
+        if (/iPhone/.test(ua)) return 'iPhone';
+        if (/(BlackBerry|PlayBook|BB10)/i.test(ua)) return 'BlackBerry';
+        if (/Android/.test(ua)) return 'Android';
+        return '';
     }
 
     /**
@@ -258,26 +250,14 @@
 
         var ua = navigator.userAgent;
 
-        if (/Windows/i.test(ua)) {
-            if (/Phone/.test(ua) || /WPDesktop/.test(ua)) {
-                return 'Windows Phone';
-            }
-            return 'Windows';
-        } else if (/(iPhone|iPad|iPod)/.test(ua)) {
-            return 'iOS';
-        } else if (/Android/.test(ua)) {
-            return 'Android';
-        } else if (/(BlackBerry|PlayBook|BB10)/i.test(ua)) {
-            return 'BlackBerry';
-        } else if (/Mac/i.test(ua)) {
-            return 'Mac OS X';
-        } else if (/Linux/.test(ua)) {
-            return 'Linux';
-        } else if (/CrOS/.test(ua)) {
-            return 'Chrome OS';
-        } else {
-            return '';
-        }
+        if (/Windows/i.test(ua)) return (/Phone/.test(ua) || /WPDesktop/.test(ua)) ? 'Windows Phone' : 'Windows';
+        if (/(iPhone|iPad|iPod)/.test(ua)) return 'iOS';
+        if (/Android/.test(ua)) return 'Android';
+        if (/(BlackBerry|PlayBook|BB10)/i.test(ua)) return 'BlackBerry';
+        if (/Mac/i.test(ua)) return 'Mac OS X';
+        if (/Linux/.test(ua)) return 'Linux';
+        if (/CrOS/.test(ua)) return 'Chrome OS';
+        return '';
     }
 
     /**
@@ -288,53 +268,30 @@
     function getBrowser() {
 
         var ua = navigator.userAgent;
-        var vendor = navigator.vendor;
+        var vendor = navigator.vendor || ''; // vendor is undefined for at least IE9
         var opera = window.opera;
 
+        // internal helper
         function includes(str, needle) {
             return str.indexOf(needle) !== -1;
-        };
-        
-        vendor = vendor || ''; // vendor is undefined for at least IE9
-        if (opera || includes(ua, ' OPR/')) {
-            if (includes(ua, 'Mini')) {
-                return 'Opera Mini';
-            }
-            return 'Opera';
-        } else if (/(BlackBerry|PlayBook|BB10)/i.test(ua)) {
-            return 'BlackBerry';
-        } else if (includes(ua, 'IEMobile') || includes(ua, 'WPDesktop')) {
-            return 'Internet Explorer Mobile';
-        } else if (includes(ua, 'Edge')) {
-            return 'Microsoft Edge';
-        } else if (includes(ua, 'FBIOS')) {
-            return 'Facebook Mobile';
-        } else if (includes(ua, 'Chrome')) {
-            return 'Chrome';
-        } else if (includes(ua, 'CriOS')) {
-            return 'Chrome iOS';
-        } else if (includes(ua, 'UCWEB') || includes(ua, 'UCBrowser')) {
-            return 'UC Browser';
-        } else if (includes(ua, 'FxiOS')) {
-            return 'Firefox iOS';
-        } else if (includes(vendor, 'Apple')) {
-            if (includes(ua, 'Mobile')) {
-                return 'Mobile Safari';
-            }
-            return 'Safari';
-        } else if (includes(ua, 'Android')) {
-            return 'Android Mobile';
-        } else if (includes(ua, 'Konqueror')) {
-            return 'Konqueror';
-        } else if (includes(ua, 'Firefox')) {
-            return 'Firefox';
-        } else if (includes(ua, 'MSIE') || includes(ua, 'Trident/')) {
-            return 'Internet Explorer';
-        } else if (includes(ua, 'Gecko')) {
-            return 'Mozilla';
-        } else {
-            return '';
         }
+
+        if (opera || includes(ua, ' OPR/')) return (includes(ua, 'Mini')) ? 'Opera Mini' : 'Opera';
+        if (/(BlackBerry|PlayBook|BB10)/i.test(ua)) return 'BlackBerry';
+        if (includes(ua, 'IEMobile') || includes(ua, 'WPDesktop')) return 'Internet Explorer Mobile';
+        if (includes(ua, 'Edge')) return 'Microsoft Edge';
+        if (includes(ua, 'FBIOS')) return 'Facebook Mobile';
+        if (includes(ua, 'Chrome')) return 'Chrome';
+        if (includes(ua, 'CriOS')) return 'Chrome iOS';
+        if (includes(ua, 'UCWEB') || includes(ua, 'UCBrowser')) return 'UC Browser';
+        if (includes(ua, 'FxiOS')) return 'Firefox iOS';
+        if (includes(vendor, 'Apple')) return (includes(ua, 'Mobile')) ? 'Mobile Safari' : 'Safari';
+        if (includes(ua, 'Android')) return 'Android Mobile';
+        if (includes(ua, 'Konqueror')) return 'Konqueror';
+        if (includes(ua, 'Firefox')) return 'Firefox';
+        if (includes(ua, 'MSIE') || includes(ua, 'Trident/')) return 'Internet Explorer';
+        if (includes(ua, 'Gecko')) return 'Mozilla';
+        return '';
     }
 
     /**
