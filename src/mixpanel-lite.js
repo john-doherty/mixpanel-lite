@@ -1,3 +1,10 @@
+/*!
+ * mixpanel-lite.js - v@version@
+ * Lightweight version of mixpanel-js with offline support
+ * https://github.com/john-doherty/mixpanel-lite
+ * @author John Doherty <www.johndoherty.info>
+ * @license MIT
+ */
 (function (window, document) {
 
     'use strict';
