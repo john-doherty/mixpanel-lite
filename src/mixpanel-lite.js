@@ -163,7 +163,7 @@
                 var dataToSend = base64Encode(JSON.stringify(item));
 
                 // generate mixpanel URL
-                var url = _trackingUrl + encodeURIComponent(dataToSend) + '&ip=1&_' + new Date().getTime();
+                var url = _trackingUrl + encodeURIComponent(dataToSend) + '&ip=1&verbose=1&_' + new Date().getTime();
 
                 // mark item as not complete, in case it fails
                 item.__completed = false;
