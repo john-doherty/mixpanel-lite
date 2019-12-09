@@ -37,11 +37,14 @@
             $referring_domain: getReferringDomain(),
             distinct_id: getNewUUID()
         };
+
+        console.log('Mixpanel.init(\'' + _token + '\')');
     }
 
     // clear all properties but token
     function reset() {
         init(_token);
+        console.log('Mixpanel.reset()');
     }
 
     /**
@@ -73,7 +76,7 @@
 
         // remove empty properties
         Object.keys(eventData.properties).forEach(function(key) {
-            if (eventData.properties[key] === '') {
+            if (!eventData.properties[key] || eventData.properties[key] === '') {
                 delete eventData.properties[key];
             }
         });
@@ -83,6 +86,13 @@
 
         // attempt to send
         send();
+
+        if (data) {
+            console.log('Mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
+        }
+        else {
+            console.log('Mixpanel.track(\'' + eventName + '\')');
+        }
     }
 
     /**
@@ -100,6 +110,8 @@
 
         // change the value for future requests
         _properties.distinct_id = id;
+
+        console.log('Mixpanel.identify(\'' + id + '\')');
     }
 
     /**

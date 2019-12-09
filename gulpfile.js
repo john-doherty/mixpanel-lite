@@ -2,6 +2,7 @@
 
 var gulp = require('gulp');
 var minifyJs = require('gulp-minify');
+var gulpRemoveLogging = require('gulp-remove-logging');
 var del = require('del');
 var runSequence = require('run-sequence');
 var replace = require('gulp-string-replace');
@@ -14,6 +15,7 @@ gulp.task('clean', function () {
 
 gulp.task('build-js', function () {
     return gulp.src('./src/*.js')
+        .pipe(gulpRemoveLogging())
         .pipe(minifyJs({
             noSource: true,
             ext: {
