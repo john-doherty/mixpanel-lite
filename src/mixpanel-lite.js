@@ -12,7 +12,7 @@
     if (!window.localStorage) throw new Error('localStorage not supported');
     if (!window.Promise) throw new Error('Promise not supported (try adding a polyfill)');
 
-    var _trackingUrl = 'https://api.mixpanel.com/track?data=';
+    var _trackingUrl = 'https://api-js.mixpanel.com/track/?data=';
     var _token = null;
 
     // holds a copy of current request properties
@@ -131,7 +131,7 @@
             return function() {
 
                 // generate mixpanel URL
-                var url = _trackingUrl + base64Encode(JSON.stringify(item)) + '&_' + new Date().getTime();
+                var url = _trackingUrl + base64Encode(JSON.stringify(item)) + '&ip=1&_' + new Date().getTime();
 
                 // mark item as not complete, in case it fails
                 item.__completed = false;
