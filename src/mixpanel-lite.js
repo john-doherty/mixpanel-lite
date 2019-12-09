@@ -38,13 +38,18 @@
             $referrer: document.referrer,
             $referring_domain: getReferringDomain(),
             distinct_id: uuid,
-            $device_id: uuid
+            $device_id: uuid,
+            mp_lib: 'mixpanel-lite',
+            $lib_version: '1.0.0'
         };
 
         console.log('Mixpanel.init(\'' + _token + '\')');
     }
 
-    // clear all properties but token
+    /**
+    * Clears super properties and generates a new random distinct_id for this instance. 
+    * Useful for clearing data when a user logs out.
+    */
     function reset() {
         init(_token);
         console.log('Mixpanel.reset()');
