@@ -41,7 +41,7 @@ mixpanel-lite uses `window.localStorage` and `window.Promise` which should exist
 
 ### Update .min files
 
-To create a new version of the minified [mixpanel-lite.min.js](dist/mixpanel-lite.min.js) file from source, tweak the version number in `package.json` and run:
+To generate a new [mixpanel-lite.min.js](dist/mixpanel-lite.min.js) from source, tweak the version number in `package.json` and run:
 
 ```bash
 npm run build
