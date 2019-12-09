@@ -14,7 +14,7 @@ Add [mixpanel-lite.min.js](dist/mixpanel-lite.min.js) to your project:
 <script src="mixpanel-lite.min.js"></script>
 ```
 
-I've only added the methods I need, we can tweak this overtime but it might be best to keep it _lite_
+At present only the following methods are supported:
 
 ```js
 // setup mixpanel
@@ -32,6 +32,8 @@ mixpanel.track('Your Event Name' {
 // clear current identity
 mixpanel.reset();
 ```
+
+_We can build this out overtime, but it might be best we keep it _lite__
 
 ### Dependencies
 
