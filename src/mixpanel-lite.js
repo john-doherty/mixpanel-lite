@@ -24,6 +24,8 @@
 
         _token = token;
 
+        var uuid = getNewUUID();
+
         _properties = {
             token: token,
             $current_url: window.location.href,
@@ -35,7 +37,8 @@
             $screen_width: screen.width,
             $referrer: document.referrer,
             $referring_domain: getReferringDomain(),
-            distinct_id: getNewUUID()
+            distinct_id: uuid,
+            $device_id: uuid
         };
 
         console.log('Mixpanel.init(\'' + _token + '\')');
@@ -128,7 +131,7 @@
             return function() {
 
                 // generate mixpanel URL
-                var url = _trackingUrl + base64Encode(JSON.stringify(item)) + '&ip=1&_' + new Date().getTime();
+                var url = _trackingUrl + base64Encode(JSON.stringify(item)) + '&_' + new Date().getTime();
 
                 // mark item as not complete, in case it fails
                 item.__completed = false;
