@@ -1,6 +1,6 @@
 # mixpanel-lite
 
-This is a lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support. It weighs in at 5.2k _(2.2k gzipped)_.
+This is a lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support, weighing in at 6k _(2.6k gzipped)_.
 
 ## How offline works
 
@@ -35,7 +35,7 @@ mixpanel.reset();
 
 ### Dependencies
 
-mixpanel-lite requires `window.localStorage` and `window.Promise` which should exist in all modern browsers, an error will be thrown if not.
+mixpanel-lite uses `window.localStorage` and `window.Promise` which should exist in all modern browsers.
 
 ### Update .min files
 
