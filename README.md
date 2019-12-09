@@ -4,9 +4,7 @@ This is a lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpa
 
 ## How offline works
 
-mixpanel-lite uses the Mixpanel [HTTP API](https://developer.mixpanel.com/docs/http). Requests are saved to localStorage `mixpanel-lite` first and are only removed from localStorage once the API confirms receipt.
-
-This allows the device to go on/offline without losing events.
+mixpanel-lite uses the Mixpanel [HTTP API](https://developer.mixpanel.com/docs/http). Requests are saved to localStorage `mixpanel-lite` first and are only removed from localStorage once the API confirms receipt, allowing the device to go on/offline without losing events.
 
 ## Usage
 
