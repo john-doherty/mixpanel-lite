@@ -20,12 +20,20 @@
     // holds a copy of current request properties
     var _properties = {};
 
+    /**
+     * Sets up in memory properties to be sent with each request
+     * @param {string} token - mixpanel token
+     * @param {object} opts - options { debug: true }
+     * @returns {void}
+     */
     function init(token, opts) {
 
-        if (!token || token.trim() === '') throw new Error('Invalid Mixpanel token');
+        token = String(token || '');
+
+        if (token === '') throw new Error('Invalid Mixpanel token');
 
         _token = token;
-        _debugging = ((opts ||{}).debug === true);
+        _debugging = ((opts || {}).debug === true);
 
         var uuid = getNewUUID();
 
