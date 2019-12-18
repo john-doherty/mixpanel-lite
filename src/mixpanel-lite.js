@@ -153,7 +153,7 @@
     function identify(id) {
 
         if (!id || id.trim() === '') {
-            console.warn('Mixpanel.track: Invalid id');
+            console.warn('Mixpanel.identify: Invalid id');
             return;
         }
 
@@ -181,7 +181,7 @@
     function setPeople(data) {
 
         if (!data || typeof data !== 'object') {
-            console.warn('Mixpanel.track: Invalid data param, must be an object');
+            console.warn('Mixpanel.setPeople: Invalid data param, must be an object');
             return;
         }
 
