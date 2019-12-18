@@ -215,10 +215,6 @@
 
                     // mark item as completed
                     item.__completed = true;
-                })
-                .catch(function(err) {
-                    // failed, ensure it's not marked as complete
-                    delete item.__completed;
                 });
             };
         });
