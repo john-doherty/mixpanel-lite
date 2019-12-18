@@ -15,7 +15,7 @@ gulp.task('clean', function () {
 
 gulp.task('build-js', function () {
     return gulp.src('./src/*.js')
-        .pipe(gulpRemoveLogging())
+        // .pipe(gulpRemoveLogging())
         .pipe(minifyJs({
             noSource: true,
             ext: {

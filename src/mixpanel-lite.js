@@ -9,8 +9,15 @@
 
     'use strict';
 
-    if (!window.localStorage) throw new Error('localStorage not supported');
-    if (!window.Promise) throw new Error('Promise not supported (try adding a polyfill)');
+    if (!window.localStorage) {
+        console.warn('mixpanel-lite: localStorage not supported');
+        return;
+    }
+
+    if (!window.Promise) {
+        console.warn('mixpanel-lite: Promise not supported (try adding a polyfill)');
+        return;
+    }
 
     var _trackingUrl = 'https://api.mixpanel.com/track?ip=1&verbose=1&data=';
     var _engageUrl = 'https://api.mixpanel.com/engage?ip=1&verbose=1&data=';
@@ -30,7 +37,10 @@
 
         token = String(token || '');
 
-        if (token === '') throw new Error('Invalid Mixpanel token');
+        if (token === '') {
+            console.warn('mixpanel.init: Invalid token');
+            return;
+        }
 
         _token = token;
         _debugging = ((opts || {}).debug === true);
@@ -58,6 +68,8 @@
         if (_debugging) {
             console.log('mixpanel.init(\'' + _token + '\')');
         }
+
+        return true;
     }
 
     /**
@@ -80,9 +92,20 @@
     */
     function track(eventName, data) {
 
-        if (!_token) throw new Error('You must call mixpanel.init(token) first');
-        if (!eventName || eventName === '') throw new Error('Invalid eventName');
-        if (data && typeof data !== 'object') throw new Error('Data param must be an object');
+        if (!_token) {
+            console.warn('Mixpanel.track: You must call mixpanel.init(token) first');
+            return;
+        }
+
+        if (!eventName || eventName === '') {
+            console.warn('Mixpanel.track: Invalid eventName');
+            return;
+        }
+
+        if (data && typeof data !== 'object') {
+            console.warn('Mixpanel.track: Data param must be an object');
+            return;
+        }
 
         // user does not want to be tracked, exit
         if (navigator.doNotTrack == 1) return;
@@ -93,12 +116,12 @@
         };
 
         // add custom event data
-        Object.keys(data || {}).forEach(function(key) {
+        Object.keys(data || {}).forEach(function (key) {
             eventData.properties[key] = data[key];
         });
 
         // remove empty properties
-        Object.keys(eventData.properties).forEach(function(key) {
+        Object.keys(eventData.properties).forEach(function (key) {
             if (!eventData.properties[key] || eventData.properties[key] === '') {
                 delete eventData.properties[key];
             }
@@ -129,7 +152,10 @@
      */
     function identify(id) {
 
-        if (!id || id.trim() === '') throw new Error('Invalid id');
+        if (!id || id.trim() === '') {
+            console.warn('Mixpanel.track: Invalid id');
+            return;
+        }
 
         if (_debugging) {
             console.log('mixpanel.identify(\'' + id + '\')');
@@ -154,7 +180,10 @@
      */
     function setPeople(data) {
 
-        if (!data || typeof data !== 'object') throw new Error('Invalid data param, must be an object');
+        if (!data || typeof data !== 'object') {
+            console.warn('Mixpanel.track: Invalid data param, must be an object');
+            return;
+        }
 
         // user does not want to be tracked, exit
         if (navigator.doNotTrack == 1) return;
@@ -166,12 +195,12 @@
         };
 
         // add custom event data
-        Object.keys(data || {}).forEach(function(key) {
+        Object.keys(data || {}).forEach(function (key) {
             eventData.$set[key] = data[key];
         });
 
         // remove empty properties
-        Object.keys(eventData.$set).forEach(function(key) {
+        Object.keys(eventData.$set).forEach(function (key) {
             if (!eventData.$set[key] || eventData.$set[key] === '') {
                 delete eventData.$set[key];
             }
@@ -193,10 +222,10 @@
         var items = transactions.all();
 
         // convert each pending transaction into a request promise
-        var requests = items.map(function(item) {
+        var requests = items.map(function (item) {
 
             // we have to return a function to execute in sequence, otherwise they'll execute immediately
-            return function() {
+            return function () {
 
                 // depending on the update type, change the API URL (hacky)
                 var url = (item.$set) ? _engageUrl : _trackingUrl;
@@ -211,7 +240,7 @@
                 item.__completed = false;
 
                 // execute the request
-                return httpGet(url).then(function() {
+                return httpGet(url).then(function () {
 
                     // mark item as completed
                     item.__completed = true;
@@ -220,10 +249,10 @@
         });
 
         // execute requests in order, if any fail, stop executing as we need transactions to be in order
-        return promisesInSequence(requests).then(function() {
+        return promisesInSequence(requests).then(function () {
 
             // remove completed requests
-            var incompleteRequests = items.filter(function(item) {
+            var incompleteRequests = items.filter(function (item) {
                 return !item.__completed;
             });
 
@@ -261,12 +290,12 @@
         _key: 'mixpanel-lite',
 
         // returns a list of all transactions or emmpty array
-        all: function() {
+        all: function () {
             return JSON.parse(localStorage.getItem(transactions._key) || '[]');
         },
 
         // adds an item to the transaction log
-        add: function(data) {
+        add: function (data) {
 
             // get existing transactions
             var existing = transactions.all();
@@ -279,12 +308,12 @@
         },
 
         // clears any pending transactions
-        clear: function() {
+        clear: function () {
             localStorage.setItem(transactions._key, JSON.stringify([]));
         },
 
         // replaces all transactions with new items
-        reset: function(items) {
+        reset: function (items) {
             localStorage.setItem(transactions._key, JSON.stringify(items || []));
         }
     };
@@ -371,7 +400,7 @@
             'Microsoft Edge': /Edge\/(\d+(\.\d+)?)/,
             'Chrome': /Chrome\/(\d+(\.\d+)?)/,
             'Chrome iOS': /CriOS\/(\d+(\.\d+)?)/,
-            'UC Browser' : /(UCBrowser|UCWEB)\/(\d+(\.\d+)?)/,
+            'UC Browser': /(UCBrowser|UCWEB)\/(\d+(\.\d+)?)/,
             'Safari': /Version\/(\d+(\.\d+)?)/,
             'Mobile Safari': /Version\/(\d+(\.\d+)?)/,
             'Opera': /(Opera|OPR)\/(\d+(\.\d+)?)/,
@@ -412,13 +441,13 @@
      */
     function httpGet(url) {
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
 
             var xhr = new XMLHttpRequest();
 
             xhr.open('GET', url);
             xhr.withCredentials = true;
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200 || (xhr.status === 0 && xhr.responseText !== '')) {
                         resolve({
@@ -449,7 +478,7 @@
 
         // Time/ticks information
         // 1*new Date() is a cross browser version of Date.now()
-        var T = function() {
+        var T = function () {
             var d = 1 * new Date(),
                 i = 0;
 
@@ -464,7 +493,7 @@
         };
 
         // Math.Random entropy
-        var R = function() {
+        var R = function () {
             return Math.random().toString(16).replace('.', '');
         };
 
@@ -472,7 +501,7 @@
         // This function takes the user agent string, and then xors
         // together each sequence of 8 bytes.  This produces a final
         // sequence of 8 bytes which it returns as hex.
-        var UA = function() {
+        var UA = function () {
             var ua = navigator.userAgent,
                 i, ch, buffer = [],
                 ret = 0;
@@ -517,7 +546,7 @@
     /* #endregion */
 
     // if we are running in cordova use ondeviceready otherwise onload
-    window.addEventListener((window.cordova) ? 'deviceready': 'load', send, { passive: true });
+    window.addEventListener((window.cordova) ? 'deviceready' : 'load', send, { passive: true });
 
     // always send pending request when the connection comes back online
     window.addEventListener('online', send, { passive: true });
