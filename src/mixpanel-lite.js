@@ -93,17 +93,17 @@
     function track(eventName, data) {
 
         if (!_token) {
-            console.warn('Mixpanel.track: You must call mixpanel.init(token) first');
+            console.warn('mixpanel.track: You must call mixpanel.init(token) first');
             return;
         }
 
         if (!eventName || eventName === '') {
-            console.warn('Mixpanel.track: Invalid eventName');
+            console.warn('mixpanel.track: Invalid eventName');
             return;
         }
 
         if (data && typeof data !== 'object') {
-            console.warn('Mixpanel.track: Data param must be an object');
+            console.warn('mixpanel.track: Data param must be an object');
             return;
         }
 
@@ -153,7 +153,7 @@
     function identify(id) {
 
         if (!id || id.trim() === '') {
-            console.warn('Mixpanel.identify: Invalid id');
+            console.warn('mixpanel.identify: Invalid id');
             return;
         }
 
@@ -181,7 +181,7 @@
     function setPeople(data) {
 
         if (!data || typeof data !== 'object') {
-            console.warn('Mixpanel.setPeople: Invalid data param, must be an object');
+            console.warn('mixpanel.setPeople: Invalid data param, must be an object');
             return;
         }
 
