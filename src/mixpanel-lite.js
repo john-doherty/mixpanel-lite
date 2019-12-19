@@ -122,7 +122,7 @@
 
         // remove empty properties
         Object.keys(eventData.properties).forEach(function (key) {
-            if (!eventData.properties[key] || eventData.properties[key] === '') {
+            if (eventData.properties[key] === null || eventData.properties[key] === '') {
                 delete eventData.properties[key];
             }
         });
@@ -201,7 +201,7 @@
 
         // remove empty properties
         Object.keys(eventData.$set).forEach(function (key) {
-            if (!eventData.$set[key] || eventData.$set[key] === '') {
+            if (eventData.$set[key] === null || eventData.$set[key] === '') {
                 delete eventData.$set[key];
             }
         });
