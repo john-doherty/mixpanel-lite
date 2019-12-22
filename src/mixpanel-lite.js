@@ -50,7 +50,6 @@
         // params -> https://help.mixpanel.com/hc/en-us/articles/115004613766-Default-Properties-Collected-by-Mixpanel
         _properties = {
             token: token,
-            $current_url: window.location.href,
             $os: getOS(),
             $browser: getBrowser(),
             $browser_version: getBrowserVersion(),
@@ -64,6 +63,11 @@
             mp_lib: 'mixpanel-lite',
             $lib_version: '1.0.5'
         };
+
+        // only track page URL's
+        if (String(window.location.protocol).indexOf('http') === 0) {
+            _properties.$current_url = window.location.href;
+        }
 
         if (_debugging) {
             console.log('mixpanel.init(\'' + _token + '\')');
