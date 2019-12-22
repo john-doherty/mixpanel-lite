@@ -69,6 +69,21 @@
             _properties.$current_url = window.location.href;
         }
 
+        if (window.device) {
+
+            if (window.device.manufacturer) {
+                _properties.$manufacturer = window.device.manufacturer;
+            }
+
+            if (window.device.model) {
+                _properties.$model = window.device.model;
+            }
+
+            if (window.device.version) {
+                _properties.$os_version = window.device.version;
+            }
+        }
+
         if (_debugging) {
             console.log('mixpanel.init(\'' + _token + '\')');
         }
