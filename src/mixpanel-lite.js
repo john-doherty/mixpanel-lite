@@ -84,11 +84,33 @@
             }
         }
 
+        // attempt to get connection type
+        var connection = (navigator.connection || navigator.mozConnection || navigator.webkitConnection);
+
+        if (connection) {
+
+            _properties.connectionType = getConnectionType();
+
+            connection.addEventListener('change', function() {
+                _properties.connectionType = getConnectionType();
+            });
+        }
+
         if (_debugging) {
             console.log('mixpanel.init(\'' + _token + '\')');
         }
 
         return true;
+    }
+
+    /**
+     * Attempt to get the network connection type from w3c NetworkInformation or cordova-plugin-network-information
+     * @returns {string} connection type or empty
+     */
+    function getConnectionType() {
+        var connection = (navigator.connection || navigator.mozConnection || navigator.webkitConnection || {});
+
+        return connection.effectiveType || connection.type || '';
     }
 
     /**
