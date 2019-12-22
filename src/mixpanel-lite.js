@@ -84,13 +84,15 @@
             }
         }
 
-        // attempt to get connection type
-        var connection = (navigator.connection || navigator.mozConnection || navigator.webkitConnection);
+        // attempt to resolve connection type
+        _properties.connectionType = getConnectionType();
 
-        if (connection) {
+        // listen for connection change events (only available in w3c implementation)
+        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
 
-            _properties.connectionType = getConnectionType();
+        if (connection && connection.addEventListener) {
 
+            // update connection when it changes
             connection.addEventListener('change', function() {
                 _properties.connectionType = getConnectionType();
             });
