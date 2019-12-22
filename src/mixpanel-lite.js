@@ -254,8 +254,12 @@
 
         // attempt to send
         send();
-    }
 
+        if (_debugging) {
+            console.log('mixpanel.people.set(' + JSON.stringify(data || {}) + ')');
+            console.dir(eventData);
+        }
+    }
 
     /**
     * Sends pending events to Mixpanel API
