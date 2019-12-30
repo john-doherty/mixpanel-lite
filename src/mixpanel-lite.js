@@ -598,15 +598,57 @@
     // always send pending request when the connection comes back online
     window.addEventListener('online', send, { passive: true });
 
-    // expose mixpanel methods
-    window.mixpanel = {
+    /**
+     * No operation (does nothing other than log to the console that mixpanel is muted)
+     * @returns {void}
+     */
+    function noop() {
+        console.warn('mixpanel muted');
+    }
+
+    // no operation interface, exposes method that do nothing
+    var mutedInterface = {
+        init: noop,
+        track: noop,
+        reset: noop,
+        identify: noop,
+        people: {
+            set: noop
+        },
+        mute: noop,
+        unmute: unmute
+    };
+
+    // operational interface, exposes methods that talk to mixpanel
+    var unmutedInterface = {
         init: init,
         track: track,
         reset: reset,
         identify: identify,
         people: {
             set: setPeople
-        }
+        },
+        mute: mute,
+        unmute: noop
     };
+
+    /**
+     * Mutes mixpanel by overriding public methods with empty functions
+     * @returns {void}
+     */
+    function mute() {
+        window.mixpanel = mutedInterface;
+    }
+
+    /**
+     * Restores mixpanel function after a call to mixpanel.mute allowing data to be sent to mixpanel
+     * @returns {void}
+     */
+    function unmute() {
+        window.mixpanel = unmutedInterface;
+    }
+
+    // expose mixpanel methods
+    window.mixpanel = unmutedInterface;
 
 }(this, document));
