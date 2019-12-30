@@ -36,17 +36,13 @@ mixpanel.track('Your Event Name' {
 
 // clear current identity
 mixpanel.reset();
+
+// stop sending data to mixpanel (calls to track, identify etc are ignored)
+mixpanel.mute();
+
+// resume sending data to mixpanel
+mixpanel.unmute();
 ```
-
-### Helper methods
-
-#### mixpanel.mute()
-
-Execute `mixpanel.mute()` to temporarily stop sending data to mixpanel. Future calls to `track`, `identify`, `people.set` will be ignored.
-
-#### mixpanel.unmute()
-
-Execute `mixpanel.unmute()` to resume sending data to mixpanel.
 
 ## Contributing
 

@@ -648,7 +648,7 @@
         window.mixpanel = unmutedInterface;
     }
 
-    // expose mixpanel methods
+    // expose mixpanel methods by default
     window.mixpanel = unmutedInterface;
 
 }(this, document));
