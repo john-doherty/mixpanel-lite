@@ -46,7 +46,7 @@ Execute `mixpanel.mute()` to temporarily stop sending data to mixpanel. Future c
 
 #### mixpanel.unmute()
 
-Execute `mixpanel.unmute()` to resume resume sending data to mixpanel.
+Execute `mixpanel.unmute()` to resume sending data to mixpanel.
 
 ## Contributing
 
