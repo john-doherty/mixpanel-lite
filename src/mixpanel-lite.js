@@ -35,6 +35,10 @@
      */
     function init(token, opts) {
 
+        if ((opts || {}).mute === true) {
+            window.mixpanel = mutedInterface;
+        }
+
         token = String(token || '');
 
         if (token === '') {
@@ -592,30 +596,26 @@
 
     /* #endregion */
 
-    // if we are running in cordova use ondeviceready otherwise onload
-    window.addEventListener((window.cordova) ? 'deviceready' : 'load', send, { passive: true });
-
-    // always send pending request when the connection comes back online
-    window.addEventListener('online', send, { passive: true });
-
-    /**
-     * No operation (does nothing other than log to the console that mixpanel is muted)
-     * @returns {void}
-     */
-    function noop() {
-        console.warn('mixpanel muted');
-    }
-
     // no operation interface, exposes method that do nothing
     var mutedInterface = {
-        init: noop,
-        track: noop,
-        reset: noop,
-        identify: noop,
-        people: {
-            set: noop
+        init: function(token, ops) {
+            console.log('mixpanel.track(\'' + token + '\',' + JSON.stringify(ops || {}) + ')');
         },
-        mute: noop,
+        track: function(eventName, data) {
+            console.log('mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
+        },
+        reset: function() {
+            console.log('mixpanel.reset()');
+        },
+        identify: function(id) {
+            console.log('mixpanel.identify(\'' + id + '\')');
+        },
+        people: {
+            set: function(data) {
+                console.log('mixpanel.people.set(' + JSON.stringify(data || {}) + ')');
+            }
+        },
+        mute: mute,
         unmute: unmute
     };
 
@@ -629,7 +629,7 @@
             set: setPeople
         },
         mute: mute,
-        unmute: noop
+        unmute: unmute
     };
 
     /**
@@ -650,5 +650,11 @@
 
     // expose mixpanel methods by default
     window.mixpanel = unmutedInterface;
+
+    // if we are running in cordova use ondeviceready otherwise onload
+    window.addEventListener((window.cordova) ? 'deviceready' : 'load', send, { passive: true });
+
+    // always send pending request when the connection comes back online
+    window.addEventListener('online', send, { passive: true });
 
 }(this, document));

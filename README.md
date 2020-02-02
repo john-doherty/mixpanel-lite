@@ -18,7 +18,7 @@ At present only the following methods are supported:
 
 ```js
 // setup mixpanel
-mixpanel.init('your-token-here');
+mixpanel.init('your-token-here'); // pass { mute: true } to mute by default
 
 // assign all future events to a user
 mixpanel.identify('user@email.com');
