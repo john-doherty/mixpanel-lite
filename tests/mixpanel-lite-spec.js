@@ -142,6 +142,7 @@ describe('mixpanel-lite', function () {
         // check we have request info
         expect(data).toBeDefined();
         expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toEqual(1);
         expect(data[0].event).toEqual(eventName);
         expect(data[0].properties.token).toEqual(token);
 
