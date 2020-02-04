@@ -1,11 +1,12 @@
 {
   "name": "mixpanel-lite",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Lightweight version of mixpanel-js with offline support",
   "main": "src/mixpanel-lite.js",
   "scripts": {
     "start": "node server/dev-server.js",
-    "build": "node_modules/gulp/bin/gulp.js build",
+    "test": "jasmine-node tests --verbose --color --forceexit --junitreport || true",
+    "build": "npm test && node_modules/gulp/bin/gulp.js build",
     "clean": "node_modules/gulp/bin/gulp.js clean"
   },
   "repository": {
@@ -31,6 +32,9 @@
     "gulp-remove-logging": "^1.2.0",
     "gulp-sizereport": "^1.2.0",
     "gulp-string-replace": "^0.4.0",
+    "jasmine-node": "^3.0.0",
+    "jsdom": "^16.1.0",
+    "nock": "^11.7.2",
     "run-sequence": "1.2.2"
   },
   "eslintConfig": {

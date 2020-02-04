@@ -23,91 +23,10 @@
     var _engageUrl = 'https://api.mixpanel.com/engage?ip=1&verbose=1&data=';
     var _token = null;
     var _debugging = false;
+    var _doNotTrack = (String(navigator.doNotTrack || '0') === '1');
 
     // holds a copy of current request properties
     var _properties = {};
-
-    /**
-     * Sets up in memory properties to be sent with each request
-     * @param {string} token - mixpanel token
-     * @param {object} opts - options { debug: true }
-     * @returns {void}
-     */
-    function init(token, opts) {
-
-        if ((opts || {}).mute === true) {
-            window.mixpanel = mutedInterface;
-        }
-
-        token = String(token || '');
-
-        if (token === '') {
-            console.warn('mixpanel.init: Invalid token');
-            return;
-        }
-
-        _token = token;
-        _debugging = ((opts || {}).debug === true);
-
-        var uuid = getNewUUID();
-
-        // params -> https://help.mixpanel.com/hc/en-us/articles/115004613766-Default-Properties-Collected-by-Mixpanel
-        _properties = {
-            token: token,
-            $os: getOS(),
-            $browser: getBrowser(),
-            $browser_version: getBrowserVersion(),
-            $device: getDevice(),
-            $screen_height: screen.height,
-            $screen_width: screen.width,
-            $referrer: document.referrer,
-            $referring_domain: getReferringDomain(),
-            distinct_id: uuid,
-            $device_id: uuid,
-            mp_lib: 'mixpanel-lite',
-            $lib_version: '1.0.5'
-        };
-
-        // only track page URL's
-        if (String(window.location.protocol).indexOf('http') === 0) {
-            _properties.$current_url = window.location.href;
-        }
-
-        if (window.device) {
-
-            if (window.device.manufacturer) {
-                _properties.$manufacturer = window.device.manufacturer;
-            }
-
-            if (window.device.model) {
-                _properties.$model = window.device.model;
-            }
-
-            if (window.device.version) {
-                _properties.$os_version = window.device.version;
-            }
-        }
-
-        // attempt to resolve connection type
-        _properties.connectionType = getConnectionType();
-
-        // listen for connection change events (only available in w3c implementation)
-        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-
-        if (connection && connection.addEventListener) {
-
-            // update connection when it changes
-            connection.addEventListener('change', function() {
-                _properties.connectionType = getConnectionType();
-            });
-        }
-
-        if (_debugging) {
-            console.log('mixpanel.init(\'' + _token + '\')');
-        }
-
-        return true;
-    }
 
     /**
      * Attempt to get the network connection type from w3c NetworkInformation or cordova-plugin-network-information
@@ -120,8 +39,8 @@
     }
 
     /**
-    * Clears super properties and generates a new random distinct_id for this instance.
-    * Useful for clearing data when a user logs out.
+    * clear current identity
+    * @returns {void}
     */
     function reset() {
         init(_token);
@@ -154,8 +73,10 @@
             return;
         }
 
-        // user does not want to be tracked, exit
-        if (navigator.doNotTrack == 1) return;
+        if (_doNotTrack) {
+            console.warn('mixpanel.track: user does not want to be tracked');
+            return;
+        }
 
         var eventData = {
             event: eventName,
@@ -232,8 +153,10 @@
             return;
         }
 
-        // user does not want to be tracked, exit
-        if (navigator.doNotTrack == 1) return;
+        if (_doNotTrack) {
+            console.warn('mixpanel.track: user does not want to be tracked');
+            return;
+        }
 
         var eventData = {
             $token: _token,
@@ -267,6 +190,7 @@
 
     /**
     * Sends pending events to Mixpanel API
+    * @returns {void}
     */
     function send() {
 
@@ -300,7 +224,7 @@
         });
 
         // execute requests in order, if any fail, stop executing as we need transactions to be in order
-        return promisesInSequence(requests).then(function () {
+        promisesInSequence(requests).then(function () {
 
             // remove completed requests
             var incompleteRequests = items.filter(function (item) {
@@ -314,6 +238,11 @@
 
     /* #region Helpers */
 
+    /**
+     * Clones a JSON object
+     * @param {object} obj - object to clone
+     * @returns {object} cloned object
+     */
     function cloneObject(obj) {
         return JSON.parse(JSON.stringify(obj));
     }
@@ -340,7 +269,7 @@
 
         _key: 'mixpanel-lite',
 
-        // returns a list of all transactions or emmpty array
+        // returns a list of all transactions or empty array
         all: function () {
             return JSON.parse(localStorage.getItem(transactions._key) || '[]');
         },
@@ -371,6 +300,7 @@
 
     /**
      * Gets the device type iPad, iPhone etc
+     * @returns {string} device name
      */
     function getDevice() {
 
@@ -387,6 +317,7 @@
 
     /**
      * Gets the Operating System
+     * @returns {string} os name
      */
     function getOS() {
 
@@ -406,6 +337,7 @@
      * This function detects which browser is running this script.
      * The order of the checks are important since many user agents
      * include key words used in later checks.
+     * @returns {string} browser name
      */
     function getBrowser() {
 
@@ -440,6 +372,7 @@
      * This function detects which browser version is running this script,
      * parsing major and minor version (e.g., 42.1). User agent strings from:
      * http://www.useragentstring.com/pages/useragentstring.php
+     * @returns {number} browser version
      */
     function getBrowserVersion() {
 
@@ -476,6 +409,7 @@
 
     /**
      * Gets the referring domain
+     * @returns {string} domain or empty string
      */
     function getReferringDomain() {
         var split = String(document.referrer || '').split('/');
@@ -505,7 +439,7 @@
                             url: url,
                             status: 200,
                             body: xhr.responseText || ''
-                        })
+                        });
                     }
                     else {
                         reject({
@@ -651,10 +585,90 @@
     // expose mixpanel methods by default
     window.mixpanel = unmutedInterface;
 
+    /**
+     * Sets up in memory properties to be sent with each request
+     * @param {string} token - mixpanel token
+     * @param {object} opts - options { debug: true }
+     * @returns {void}
+     */
+    function init(token, opts) {
+
+        if ((opts || {}).mute === true) {
+            window.mixpanel = mutedInterface;
+        }
+
+        token = String(token || '');
+
+        if (token === '') {
+            console.warn('mixpanel.init: Invalid token');
+            return;
+        }
+
+        _token = token;
+        _debugging = ((opts || {}).debug === true);
+
+        var uuid = getNewUUID();
+
+        // params -> https://help.mixpanel.com/hc/en-us/articles/115004613766-Default-Properties-Collected-by-Mixpanel
+        _properties = {
+            token: token,
+            $os: getOS(),
+            $browser: getBrowser(),
+            $browser_version: getBrowserVersion(),
+            $device: getDevice(),
+            $screen_height: screen.height,
+            $screen_width: screen.width,
+            $referrer: document.referrer,
+            $referring_domain: getReferringDomain(),
+            distinct_id: uuid,
+            $device_id: uuid,
+            mp_lib: 'mixpanel-lite',
+            $lib_version: '1.0.5'
+        };
+
+        // only track page URLs
+        if (String(window.location.protocol).indexOf('http') === 0) {
+            _properties.$current_url = window.location.href;
+        }
+
+        if (window.device) {
+
+            if (window.device.manufacturer) {
+                _properties.$manufacturer = window.device.manufacturer;
+            }
+
+            if (window.device.model) {
+                _properties.$model = window.device.model;
+            }
+
+            if (window.device.version) {
+                _properties.$os_version = window.device.version;
+            }
+        }
+
+        // attempt to resolve connection type
+        _properties.connectionType = getConnectionType();
+
+        // listen for connection change events (only available in w3c implementation)
+        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+        if (connection && connection.addEventListener) {
+
+            // update connection when it changes
+            connection.addEventListener('change', function() {
+                _properties.connectionType = getConnectionType();
+            });
+        }
+
+        if (_debugging) {
+            console.log('mixpanel.init(\'' + _token + '\')');
+        }
+    }
+
     // if we are running in cordova use ondeviceready otherwise onload
     window.addEventListener((window.cordova) ? 'deviceready' : 'load', send, { passive: true });
 
     // always send pending request when the connection comes back online
     window.addEventListener('online', send, { passive: true });
 
-}(this, document));
+})(this, document);
