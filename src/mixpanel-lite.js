@@ -434,7 +434,7 @@
             xhr.withCredentials = true;
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
-                    if (xhr.status === 200 || (xhr.status === 0 && xhr.responseText !== '')) {
+                    if (xhr.status === 200) {
                         resolve({
                             url: url,
                             status: 200,

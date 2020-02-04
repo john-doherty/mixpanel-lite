@@ -123,4 +123,29 @@ describe('mixpanel-lite', function () {
         window.mixpanel.people.set({ $email: email });
     });
 
+    it('should write request to localStorage first', function(done) {
+
+        var now = (new Date()).getTime();
+        var token = 'test-token-' + now;
+        var eventName = 'test-event-' + now;
+
+        // for API to reject even thus ensuring the data remains in local storage to test
+        nock('https://api.mixpanel.com/').get('/track').reply(500);
+
+        // fire tracking event
+        window.mixpanel.init(token);
+        window.mixpanel.track(eventName);
+
+        // get data from local storage
+        var data = JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+
+        // check we have request info
+        expect(data).toBeDefined();
+        expect(Array.isArray(data)).toBe(true);
+        expect(data[0].event).toEqual(eventName);
+        expect(data[0].properties.token).toEqual(token);
+
+        done();
+    });
+
 });
