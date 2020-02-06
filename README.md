@@ -1,6 +1,6 @@
 # mixpanel-lite
 
-[![Shippable branch](https://img.shields.io/shippable/5deffd03d243e400060fdbe1/master.svg)](https://app.shippable.com/projects/5deffd03d243e400060fdbe1)
+[![Build Status](https://travis-ci.org/john-doherty/mixpanel-lite.svg?branch=master)](https://travis-ci.org/john-doherty/mixpanel-lite)
 
 A lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with added offline support, weighing in at 6k _(2.4k gzipped)_.
 
