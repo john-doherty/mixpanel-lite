@@ -256,7 +256,19 @@ describe('mixpanel-lite', function () {
                     request.continue();
 
                     if (numberOfEvents === 0) {
-                        done();
+
+                        // get value of local storage
+                        page.evaluate(function () {
+                            return JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+                        })
+                        .then(function(data) {
+
+                            // check the tracking data was saved to local storage
+                            expect(data).toBeDefined();
+                            expect(Array.isArray(data)).toBe(true);
+                            expect(data.length).toEqual(0);
+                            done();
+                        });
                     }
                 });
             });
