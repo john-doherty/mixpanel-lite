@@ -91,6 +91,9 @@
         // add unique insert id (A random 16 character string of alphanumeric characters that is unique to an event.)
         eventData.properties.$insert_id = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
 
+        // epoch time in seconds
+        eventData.properties.time = Math.round((new Date()).getTime() / 1000);
+
         // remove empty properties
         Object.keys(eventData.properties).forEach(function (key) {
             if (eventData.properties[key] === null || eventData.properties[key] === '') {
