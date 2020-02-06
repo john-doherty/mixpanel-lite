@@ -185,13 +185,7 @@ describe('mixpanel-lite', function () {
         var token = 'test-token-' + now;
         var eventName = 'test-event-' + now;
 
-        // intercept mixpanel API requests
-        page.setRequestInterception(true).then(function() {
-
-            // force ajax requests to fail
-            page.on('request', function(request) {
-                request.respond({ status: 500 });
-            });
+        page.setOfflineMode(true).then(function() {
 
             // execute tracking (pass local vars into dom)
             return page.evaluate(function (t, e) {
