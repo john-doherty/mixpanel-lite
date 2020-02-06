@@ -71,7 +71,7 @@ describe('mixpanel-lite', function () {
         });
     });
 
-    it('should issue warning if no mixpanel token passed', function (done) {
+    it('should issue warning if no token passed', function (done) {
 
         page.on('console', function(message) {
             expect(message).toBeDefined();
@@ -179,7 +179,7 @@ describe('mixpanel-lite', function () {
         });
     });
 
-    it('should write tracking data to localStorage first', function (done) {
+    it('should write data to localStorage first', function (done) {
 
         var now = (new Date()).getTime();
         var token = 'test-token-' + now;
@@ -206,6 +206,64 @@ describe('mixpanel-lite', function () {
             expect(data[0].properties.token).toEqual(token);
 
             done();
+        })
+        .catch(function(err) {
+            done(err);
+        });
+    });
+
+    it('should send data when back online', function (done) {
+
+        var numberOfEvents = 10;
+
+        // go offline
+        page.setOfflineMode(true).then(function() {
+
+            // create some tracking events
+            return page.evaluate(function (num) {
+
+                window.mixpanel.init((new Date()).getTime());
+
+                for (var i = 0, l = num; i < l; i++) {
+                    window.mixpanel.track('event-' + i + '-' + (new Date()).getTime());
+                }
+            }, numberOfEvents);
+        })
+        .then(function() {
+
+            // get value of local storage
+            return page.evaluate(function () {
+                return JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+            });
+        })
+        .then(function(data) {
+
+            // check the tracking data was saved to local storage
+            expect(data).toBeDefined();
+            expect(Array.isArray(data)).toBe(true);
+            expect(data.length).toEqual(numberOfEvents);
+
+            // setup ajax intercept
+            return page.setRequestInterception(true).then(function() {
+
+                // intercept ajax requests
+                page.on('request', function(request) {
+
+                    if (request.url().startsWith('https://api.mixpanel.com/track')) {
+                        numberOfEvents--;
+                    }
+
+                    request.continue();
+
+                    if (numberOfEvents === 0) {
+                        done();
+                    }
+                });
+            });
+        })
+        .then(function() {
+            // go back online
+            return page.setOfflineMode(false);
         })
         .catch(function(err) {
             done(err);
