@@ -44,6 +44,11 @@ mixpanel.mute();
 
 // resume sending data to mixpanel
 mixpanel.unmute();
+
+// check if mixpanel is muted
+if (mixpanel.muted) {
+    console.log('Mixpanel is disabled');
+}
 ```
 
 ## Contributing

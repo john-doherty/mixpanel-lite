@@ -38,7 +38,7 @@ describe('mixpanel-lite', function () {
         });
     });
 
-    it('should expose correct methods', function (done) {
+    it('should expose the correct interface', function (done) {
 
         page.evaluate(function () {
             return window.mixpanel;
@@ -53,7 +53,36 @@ describe('mixpanel-lite', function () {
             expect(mixpanel.people.set).toBeDefined();
             expect(mixpanel.mute).toBeDefined();
             expect(mixpanel.unmute).toBeDefined();
+            expect(mixpanel.muted).toEqual(false);
             done();
+        });
+    });
+
+    it('should return muted interface when muted', function (done) {
+
+        page.evaluate(function () {
+            window.mixpanel.init(null, { mute: true });
+            return window.mixpanel;
+        })
+        .then(function (mixpanel) {
+            expect(mixpanel).toBeDefined();
+            expect(mixpanel.muted).toEqual(true);
+            done();
+        });
+    });
+
+    it('should issue warning if no mixpanel token passed', function (done) {
+
+        page.on('console', function(message) {
+            expect(message).toBeDefined();
+            expect(message._text).toEqual('mixpanel.init: invalid token');
+            expect(message._type).toEqual('warning');
+            done();
+        });
+
+        page.evaluate(function () {
+            window.mixpanel.init();
+            return window.mixpanel;
         });
     });
 

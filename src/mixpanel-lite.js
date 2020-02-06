@@ -550,7 +550,8 @@
             }
         },
         mute: mute,
-        unmute: unmute
+        unmute: unmute,
+        muted: true
     };
 
     // operational interface, exposes methods that talk to mixpanel
@@ -563,7 +564,8 @@
             set: setPeople
         },
         mute: mute,
-        unmute: unmute
+        unmute: unmute,
+        muted: false
     };
 
     /**
@@ -600,7 +602,7 @@
         token = String(token || '');
 
         if (token === '') {
-            console.warn('mixpanel.init: Invalid token');
+            console.warn('mixpanel.init: invalid token');
             return;
         }
 
