@@ -1,8 +1,0 @@
-language: node_js
-
-node_js:
-  - 6.9.2
-
-ci:
-    - shippable_retry npm install
-    - npm test
