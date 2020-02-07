@@ -8,6 +8,8 @@ var runSequence = require('run-sequence');
 var replace = require('gulp-string-replace');
 var pjson = require('./package.json');
 var sizereport = require('gulp-sizereport');
+var replace = require('gulp-string-replace');
+var pjson = require('./package.json');
 
 gulp.task('clean', function () {
     return del(['dist']);
@@ -15,6 +17,7 @@ gulp.task('clean', function () {
 
 gulp.task('build-js', function () {
     return gulp.src('./src/*.js')
+        .pipe(replace(/0.0.0/g, pjson.version))
         // .pipe(gulpRemoveLogging())
         .pipe(minifyJs({
             noSource: true,

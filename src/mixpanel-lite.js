@@ -685,7 +685,7 @@
             distinct_id: uuid,
             $device_id: uuid,
             mp_lib: 'mixpanel-lite',
-            $lib_version: '1.0.5'
+            $lib_version: '0.0.0'
         };
 
         // only track page URLs
