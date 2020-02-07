@@ -200,7 +200,10 @@
     */
     function send() {
 
-        var items = transactions.all();
+        // get all items that have not yet been sent
+        var items = transactions.all().filter(function (item) {
+            return !item.__completed;
+        });
 
         // convert each pending transaction into a request promise
         var requests = items.map(function (item) {
@@ -286,11 +289,18 @@
             // get existing transactions
             var existing = transactions.all();
 
-            // add latest to end of stack
-            existing.push(data);
+            // get the last item inserted
+            var lastItem = existing.slice(-1)[0] || {};
 
-            // save changes
-            localStorage.setItem(transactions._key, JSON.stringify(existing));
+            // if the new item is not an exact match of the last item, add it
+            if (!isEqual(data, lastItem, ['properties.time', 'properties.$insert_id'])) {
+
+                // add latest to end of stack
+                existing.push(data);
+
+                // save changes
+                localStorage.setItem(transactions._key, JSON.stringify(existing));
+            }
         },
 
         // clears any pending transactions
@@ -303,6 +313,50 @@
             localStorage.setItem(transactions._key, JSON.stringify(items || []));
         }
     };
+
+    /**
+     * Checks if two objects are equal
+     * @param {object} obj1 - first object to compare
+     * @param {object} obj2 - second object to compare
+     * @param {Array} excludeKeys - keys to exclude from comparison
+     * @returns {boolean} true if equal otherwise false
+     */
+    function isEqual(obj1, obj2, excludeKeys) {
+
+        obj1 = JSON.parse(JSON.stringify(obj1 || {}));
+        obj2 = JSON.parse(JSON.stringify(obj2 || {}));
+        excludeKeys = excludeKeys || [];
+
+        for (var i = 0, l = excludeKeys.length; i < l; i++) {
+            deletePropertyByPath(obj1, excludeKeys[i]);
+            deletePropertyByPath(obj2, excludeKeys[i]);
+        }
+
+        return (JSON.stringify(obj1) === JSON.stringify(obj2));
+    }
+
+    /**
+     * Removes nested keys from an object
+     * @param {object} obj - object to modify
+     * @param {*} path - key to remove, can be nested
+     * @returns {object} modified object
+     */
+    function deletePropertyByPath(obj, path) {
+
+        if (!obj || !path) return;
+        if (typeof path === 'string') path = path.split('.');
+
+        for (var i = 0; i < path.length - 1; i++) {
+
+            obj = obj[path[i]];
+
+            if (typeof obj === 'undefined') {
+                return;
+            }
+        }
+
+        delete obj[path.pop()];
+    }
 
     /**
      * Gets the device type iPad, iPhone etc
@@ -538,20 +592,20 @@
 
     // no operation interface, exposes method that do nothing
     var mutedInterface = {
-        init: function(token, ops) {
+        init: function (token, ops) {
             console.log('mixpanel.track(\'' + token + '\',' + JSON.stringify(ops || {}) + ')');
         },
-        track: function(eventName, data) {
+        track: function (eventName, data) {
             console.log('mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
         },
-        reset: function() {
+        reset: function () {
             console.log('mixpanel.reset()');
         },
-        identify: function(id) {
+        identify: function (id) {
             console.log('mixpanel.identify(\'' + id + '\')');
         },
         people: {
-            set: function(data) {
+            set: function (data) {
                 console.log('mixpanel.people.set(' + JSON.stringify(data || {}) + ')');
             }
         },
@@ -663,7 +717,7 @@
         if (connection && connection.addEventListener) {
 
             // update connection when it changes
-            connection.addEventListener('change', function() {
+            connection.addEventListener('change', function () {
                 _properties.connectionType = getConnectionType();
             });
         }

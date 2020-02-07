@@ -281,4 +281,43 @@ describe('mixpanel-lite', function () {
             done(err);
         });
     });
+
+    it('should suppress duplicate events', function (done) {
+
+        var now = (new Date()).getTime();
+        var token = 'test-token-' + now;
+        var eventName = 'test-event-' + now;
+
+        // go offline
+        page.setOfflineMode(true).then(function() {
+
+            // create some tracking events
+            return page.evaluate(function (t, e) {
+
+                window.mixpanel.init(t);
+                window.mixpanel.track(e);
+                window.mixpanel.track(e);
+                window.mixpanel.track(e);
+                window.mixpanel.track(e);
+            }, token, eventName);
+        })
+        .then(function() {
+
+            // get value of local storage
+            return page.evaluate(function () {
+                return JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+            });
+        })
+        .then(function(data) {
+
+            // check the tracking data was saved to local storage
+            expect(data).toBeDefined();
+            expect(Array.isArray(data)).toBe(true);
+            expect(data.length).toEqual(1);
+            done();
+        })
+        .catch(function(err) {
+            done(err);
+        });
+    });
 });

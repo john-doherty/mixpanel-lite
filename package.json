@@ -1,6 +1,6 @@
 {
   "name": "mixpanel-lite",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Lightweight version of mixpanel-js with offline support",
   "main": "src/mixpanel-lite.js",
   "scripts": {
