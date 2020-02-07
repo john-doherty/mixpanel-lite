@@ -1,7 +1,7 @@
 {
   "name": "mixpanel-lite",
-  "version": "1.2.5",
-  "description": "Lightweight version of mixpanel-js with offline support",
+  "version": "1.2.6",
+  "description": "A lightweight alternative to mixpanel-js with offline support for Hybrid and Progressive Web Apps",
   "main": "src/mixpanel-lite.js",
   "scripts": {
     "start": "node server/dev-server.js",
@@ -17,7 +17,10 @@
     "url": "https://github.com/john-doherty/mixpanel-lite/issues"
   },
   "keywords": [
-    "notch"
+    "mixpanel",
+    "offline",
+    "pwa",
+    "progressive"
   ],
   "author": "John Doherty <contact@johndoherty.info> (www.johndoherty.info)",
   "license": "MIT",

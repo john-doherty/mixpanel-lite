@@ -2,11 +2,9 @@
 
 [![Build Status](https://travis-ci.org/john-doherty/mixpanel-lite.svg?branch=master)](https://travis-ci.org/john-doherty/mixpanel-lite)
 
-A lightweight version of [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with added offline support, weighing in at 6k _(2.4k gzipped)_.
+A lightweight _(2.9k)_ alternative to [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support for Hybrid and Progressive Web Apps.
 
-mixpanel-lite uses the Mixpanel [HTTP API](https://developer.mixpanel.com/docs/http). Requests are saved to localStorage `mixpanel-lite` first and are only removed from localStorage once the API confirms receipt, allowing the device to go on/offline without losing events.
-
-The small footprint and offline first nature make it a good fit for Hybrid and Progressive Web Apps.
+Events are written to localStorage first and are only removed once the Mixpanel [HTTP API](https://developer.mixpanel.com/docs/http) confirms receipt. This allows the device to go on/offline without losing events.
 
 ## Usage
 
