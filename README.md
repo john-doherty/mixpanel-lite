@@ -4,7 +4,7 @@
 
 A lightweight _(2.9k)_ alternative to [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support for Hybrid and Progressive Web Apps.
 
-Events are written to localStorage first and are only removed once the Mixpanel [HTTP API](https://developer.mixpanel.com/docs/http) confirms receipt. This allows the device to go on/offline without losing events.
+Events are written to localStorage first and are only removed once the Mixpanel [HTTP API](https://developer.mixpanel.com/docs/http) confirms receipt, thus allowing the device to go offline without losing events.
 
 ## Usage
 
