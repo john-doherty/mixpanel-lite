@@ -148,6 +148,19 @@
     }
 
     /**
+     * Register a set of super properties, which are included with all events
+     * @param {object} data - JSON key/value pair
+     * @returns {void}
+     */
+    function register(data) {
+
+        // add custom event data
+        Object.keys(data || {}).forEach(function (key) {
+            _properties[key] = data[key];
+        });
+    }
+
+    /**
      * set properties on an user record in engage
      * @param {object} data - properties to set
      * @returns {void}
@@ -598,6 +611,9 @@
         track: function (eventName, data) {
             console.log('mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
         },
+        register: function(data) {
+            console.log('mixpanel.register(' + JSON.stringify(data || {}) + ')');
+        },
         reset: function () {
             console.log('mixpanel.reset()');
         },
@@ -618,6 +634,7 @@
     var unmutedInterface = {
         init: init,
         track: track,
+        register: register,
         reset: reset,
         identify: identify,
         people: {

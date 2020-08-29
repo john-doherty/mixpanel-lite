@@ -23,6 +23,9 @@ mixpanel.init('your-token-here'); // pass { mute: true } to mute by default
 // assign all future events to a user
 mixpanel.identify('user@email.com');
 
+// register 'Gender' as a super property
+mixpanel.register({'Gender': 'Female'});
+
 // assign user info
 mixpanel.people.set({
     $email: 'user@email.com' // only special properties need the $

@@ -47,6 +47,7 @@ describe('mixpanel-lite', function () {
             expect(mixpanel).toBeDefined();
             expect(mixpanel.init).toBeDefined();
             expect(mixpanel.track).toBeDefined();
+            expect(mixpanel.register).toBeDefined();
             expect(mixpanel.reset).toBeDefined();
             expect(mixpanel.identify).toBeDefined();
             expect(mixpanel.people).toBeDefined();
