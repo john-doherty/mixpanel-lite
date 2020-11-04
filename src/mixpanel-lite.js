@@ -672,8 +672,18 @@
      */
     function init(token, opts) {
 
-        if ((opts || {}).mute === true) {
+        opts = opts || {};
+
+        if (opts.mute === true) {
             window.mixpanel = mutedInterface;
+        }
+
+        if (opts.trackingUrl && opts.trackingUrl !== '') {
+            _trackingUrl = opts.trackingUrl;
+        }
+
+        if (opts.engageUrl && opts.engageUrl !== '') {
+            _engageUrl = opts.engageUrl;
         }
 
         token = String(token || '');
@@ -684,7 +694,7 @@
         }
 
         _token = token;
-        _debugging = ((opts || {}).debug === true);
+        _debugging = (opts.debug === true);
 
         var uuid = getNewUUID();
 
