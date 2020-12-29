@@ -156,7 +156,15 @@
 
         // add custom event data
         Object.keys(data || {}).forEach(function (key) {
-            _properties[key] = data[key];
+
+            // only add properties if they contain a value
+            if (data[key] !== null && data[key] !== '') {
+                _properties[key] = data[key];
+            }
+            // otherwise remove them (allows unset)
+            else {
+                delete _properties[key];
+            }
         });
     }
 
