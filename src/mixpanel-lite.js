@@ -23,7 +23,6 @@
     var _engageUrl = 'https://api.mixpanel.com/engage?ip=1&verbose=1&data=';
     var _token = null;
     var _debugging = false;
-    var _doNotTrack = (String(navigator.doNotTrack || '0') === '1');
 
     // holds a copy of current request properties
     var _properties = {};
@@ -70,11 +69,6 @@
 
         if (data && typeof data !== 'object') {
             console.warn('mixpanel.track: Data param must be an object');
-            return;
-        }
-
-        if (_doNotTrack) {
-            console.warn('mixpanel.track: user does not want to be tracked');
             return;
         }
 
@@ -177,11 +171,6 @@
 
         if (!data || typeof data !== 'object') {
             console.warn('mixpanel.setPeople: Invalid data param, must be an object');
-            return;
-        }
-
-        if (_doNotTrack) {
-            console.warn('mixpanel.track: user does not want to be tracked');
             return;
         }
 
@@ -726,6 +715,10 @@
         // only track page URLs
         if (String(window.location.protocol).indexOf('http') === 0) {
             _properties.$current_url = window.location.href;
+        }
+
+        if (String(navigator.doNotTrack || '0') === '1') {
+            _properties.doNotTrack = true;
         }
 
         if (window.device) {
