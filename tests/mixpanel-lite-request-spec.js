@@ -169,7 +169,7 @@ describe('mixpanel-lite request', function () {
             }, token, email);
 
             setTimeout(function() {
-                expect(trackRequestCount + engageRequestCount).toEqual(6);
+                expect(trackRequestCount + engageRequestCount).toEqual(7);
                 done();
             }, 1000);
         })
