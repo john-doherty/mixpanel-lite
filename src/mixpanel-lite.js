@@ -404,6 +404,16 @@
     }
 
     /**
+     * Checks if a value exists within a string
+     * @param {string} str - value to search
+     * @param {string} needle - value to find
+     * @returns {boolean} true if found, otherwise false
+     */
+    function includes(str, needle) {
+        return str.indexOf(needle) !== -1;
+    }
+
+    /**
      * This function detects which browser is running this script.
      * The order of the checks are important since many user agents
      * include key words used in later checks.
@@ -414,11 +424,6 @@
         var ua = navigator.userAgent;
         var vendor = navigator.vendor || ''; // vendor is undefined for at least IE9
         var opera = window.opera;
-
-        // internal helper
-        function includes(str, needle) {
-            return str.indexOf(needle) !== -1;
-        }
 
         if (opera || includes(ua, ' OPR/')) return (includes(ua, 'Mini')) ? 'Opera Mini' : 'Opera';
         if (/(BlackBerry|PlayBook|BB10)/i.test(ua)) return 'BlackBerry';
