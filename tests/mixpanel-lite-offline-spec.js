@@ -17,6 +17,7 @@ describe('mixpanel-lite offline', function () {
 
         puppeteer.launch({
             headless: true,
+            dumpio: true,
             args: []
         })
         .then(function (item) {
@@ -73,7 +74,7 @@ describe('mixpanel-lite offline', function () {
 
     it('should send data when back online', function (done) {
 
-        var numberOfEvents = 10;
+        var numberOfTrackEvents = 4;
 
         // go offline
         page.setOfflineMode(true).then(function() {
@@ -84,9 +85,9 @@ describe('mixpanel-lite offline', function () {
                 window.mixpanel.init((new Date()).getTime());
 
                 for (var i = 0, l = num; i < l; i++) {
-                    window.mixpanel.track('event-' + i + '-' + (new Date()).getTime());
+                    window.mixpanel.track('event-' + i);
                 }
-            }, numberOfEvents);
+            }, numberOfTrackEvents);
         })
         .then(function() {
 
@@ -100,7 +101,7 @@ describe('mixpanel-lite offline', function () {
             // check the tracking data was saved to local storage
             expect(data).toBeDefined();
             expect(Array.isArray(data)).toBe(true);
-            expect(data.length).toEqual(numberOfEvents);
+            expect(data.length).toEqual(numberOfTrackEvents);
 
             // setup ajax intercept
             return page.setRequestInterception(true).then(function() {
@@ -108,13 +109,24 @@ describe('mixpanel-lite offline', function () {
                 // intercept ajax requests
                 page.on('request', function(request) {
 
-                    if (request.url().startsWith('https://api.mixpanel.com/track')) {
-                        numberOfEvents--;
-                    }
+                    var requestUrl = request.url();
 
                     request.continue();
 
-                    if (numberOfEvents === 0) {
+                    if (requestUrl.startsWith('https://api.mixpanel.com/track')) {
+                        numberOfTrackEvents--;
+                    }
+
+                    // // testing...
+                    // var query = requestUrl.substr(requestUrl.indexOf('?') + 1);
+                    // var params = querystring.parse(query);
+                    // var data = JSON.parse(Buffer.from(params.data, 'base64').toString('ascii'));
+
+                    // console.dir(data);
+
+                    // console.log('numberOfTrackEvents', numberOfTrackEvents);
+
+                    if (numberOfTrackEvents === 0) {
 
                         // get value of local storage
                         page.evaluate(function () {
@@ -141,7 +153,7 @@ describe('mixpanel-lite offline', function () {
         });
     });
 
-    it('should suppress duplicate events', function (done) {
+    it('should NOT suppress duplicate events', function (done) {
 
         var now = (new Date()).getTime();
         var token = 'test-token-' + now;
@@ -172,7 +184,7 @@ describe('mixpanel-lite offline', function () {
             // check the tracking data was saved to local storage
             expect(data).toBeDefined();
             expect(Array.isArray(data)).toBe(true);
-            expect(data.length).toEqual(1);
+            expect(data.length).toEqual(4);
             done();
         })
         .catch(function(err) {

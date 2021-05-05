@@ -23,6 +23,13 @@
     var _engageUrl = 'https://api.mixpanel.com/engage?ip=1&verbose=1&data=';
     var _token = null;
     var _debugging = false;
+    var _sending = false;
+    var _deferSendTimer = null;
+
+    // we an an internal _id to each event object in the format upoc-counter
+    // this makes it easier for us to remove successfully sent event from local db
+    var _internalEventIdPrefix = new Date().getTime();
+    var _internalEventIdCounter = 0;
 
     // holds a copy of current request properties
     var _properties = {};
@@ -210,10 +217,27 @@
     */
     function send() {
 
-        // get all items that have not yet been sent
-        var items = transactions.all().filter(function (item) {
-            return !item.__completed;
-        });
+        // if we're busy sending
+        if (_sending) {
+
+            // clear defer timeout if it exists
+            if (_deferSendTimer) clearTimeout(_deferSendTimer);
+
+            // set a new timer to recall send in .05s
+            _deferSendTimer = setTimeout(send, 50);
+
+            // exit
+            return;
+        }
+
+        // get all items waiting to be sent
+        var items = transactions.all();
+
+        // if we have nothing to send, exit
+        if (items.length === -1) return;
+
+        // otherwise, flag sending as started
+        _sending = true;
 
         // convert each pending transaction into a request promise
         var requests = items.map(function (item) {
@@ -224,20 +248,28 @@
                 // depending on the update type, change the API URL (hacky)
                 var url = (item.$set) ? _engageUrl : _trackingUrl;
 
+                // do not modify the original
+                var itemToSend = cloneObject(item);
+
+                // remove internal _id
+                delete itemToSend._id;
+
                 // encode the data so it can be sent via a HTTP GET (avoids preflight headers)
-                var dataToSend = base64Encode(JSON.stringify(item));
+                var dataToSend = base64Encode(JSON.stringify(itemToSend));
 
                 // generate mixpanel URL (add timestamp to make it unique)
                 url += encodeURIComponent(dataToSend) + '&_=' + new Date().getTime();
-
-                // mark item as not complete, in case it fails
-                item.__completed = false;
 
                 // execute the request
                 return httpGet(url).then(function () {
 
                     // mark item as completed
                     item.__completed = true;
+                })
+                .catch(function() {
+
+                    // mark item as not completed (we can resend this)
+                    item.__completed = false;
                 });
             };
         });
@@ -245,13 +277,25 @@
         // execute requests in order, if any fail, stop executing as we need transactions to be in order
         promisesInSequence(requests).then(function () {
 
-            // remove completed requests
-            var incompleteRequests = items.filter(function (item) {
-                return !item.__completed;
+            // get completed requests
+            var completedRequests = items.filter(function (item) {
+                return item.__completed;
             });
 
-            // save incomplete requests for next time
-            transactions.reset(incompleteRequests);
+            // remove completed requests from pending transaction
+            transactions.remove(completedRequests);
+
+            // mark sending complete
+            _sending = false;
+        })
+        .catch(function(err) {
+
+            if (_debugging) {
+                console.log(err);
+            }
+
+            // something went wrong, allow this method to be recalled
+            _sending = false;
         });
     }
 
@@ -299,74 +343,41 @@
             // get existing transactions
             var existing = transactions.all();
 
-            // get the last item inserted
-            var lastItem = existing.slice(-1)[0] || {};
+            // increase event _id counter
+            _internalEventIdCounter++;
 
-            // if the new item is not an exact match of the last item, add it
-            if (!isEqual(data, lastItem, ['properties.time', 'properties.$insert_id'])) {
+            // add a unique event id (makes it easier for us to clean up sent events)
+            data._id = _internalEventIdPrefix + '-' + _internalEventIdCounter;
 
-                // add latest to end of stack
-                existing.push(data);
+            // add latest to end of stack
+            existing.push(data);
 
-                // save changes
-                localStorage.setItem(transactions._key, JSON.stringify(existing));
-            }
+            // save changes
+            localStorage.setItem(transactions._key, JSON.stringify(existing));
+        },
+
+        // removes events from the transaction log
+        remove: function (itemsToRemove) {
+
+            // get array of ids to remove
+            var idsToRemove = (itemsToRemove || []).map(function(item) {
+                return item._id;
+            });
+
+            // go through existing transactions, removing items that contain an matching id
+            var remaining = transactions.all().filter(function(item) {
+                return idsToRemove.indexOf(item._id) === -1;
+            });
+
+            // save changes
+            localStorage.setItem(transactions._key, JSON.stringify(remaining));
         },
 
         // clears any pending transactions
         clear: function () {
             localStorage.setItem(transactions._key, JSON.stringify([]));
-        },
-
-        // replaces all transactions with new items
-        reset: function (items) {
-            localStorage.setItem(transactions._key, JSON.stringify(items || []));
         }
     };
-
-    /**
-     * Checks if two objects are equal
-     * @param {object} obj1 - first object to compare
-     * @param {object} obj2 - second object to compare
-     * @param {Array} excludeKeys - keys to exclude from comparison
-     * @returns {boolean} true if equal otherwise false
-     */
-    function isEqual(obj1, obj2, excludeKeys) {
-
-        obj1 = JSON.parse(JSON.stringify(obj1 || {}));
-        obj2 = JSON.parse(JSON.stringify(obj2 || {}));
-        excludeKeys = excludeKeys || [];
-
-        for (var i = 0, l = excludeKeys.length; i < l; i++) {
-            deletePropertyByPath(obj1, excludeKeys[i]);
-            deletePropertyByPath(obj2, excludeKeys[i]);
-        }
-
-        return (JSON.stringify(obj1) === JSON.stringify(obj2));
-    }
-
-    /**
-     * Removes nested keys from an object
-     * @param {object} obj - object to modify
-     * @param {*} path - key to remove, can be nested
-     * @returns {object} modified object
-     */
-    function deletePropertyByPath(obj, path) {
-
-        if (!obj || !path) return;
-        if (typeof path === 'string') path = path.split('.');
-
-        for (var i = 0; i < path.length - 1; i++) {
-
-            obj = obj[path[i]];
-
-            if (typeof obj === 'undefined') {
-                return;
-            }
-        }
-
-        delete obj[path.pop()];
-    }
 
     /**
      * Gets the device type iPad, iPhone etc

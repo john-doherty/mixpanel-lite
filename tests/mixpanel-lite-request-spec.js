@@ -131,11 +131,11 @@ describe('mixpanel-lite request', function () {
         });
     });
 
-    it('should send correct number of events', function (done) {
+    it('should send correct number of requests', function (done) {
 
         var now = (new Date()).getTime();
-        var token = '7da2a3262010d35f443a498253dba2d3';
-        var email = 'test-email-' + now + '@mixpanel-lite.info';
+        var token = 'e96e0cf4a30bc1ce51c5a5cb8b11d721';
+        var email = 'test-' + now + '@mixpanel-lite.info';
         var trackRequestCount = 0;
         var engageRequestCount = 0;
 
@@ -159,17 +159,19 @@ describe('mixpanel-lite request', function () {
 
             // execute tracking (pass local vars into dom)
             page.evaluate(function (t, e) {
-                window.mixpanel.init(t);
-                window.mixpanel.track('startup');
-                window.mixpanel.track('login');
-                window.mixpanel.identify(e);
-                window.mixpanel.people.set({ roles: ['editor', 'admin'] });
-                window.mixpanel.track('download');
-                window.mixpanel.track('logout');
+                window.mixpanel.init(t); // <- no request
+
+                window.mixpanel.track('startup'); // <- track request
+                window.mixpanel.track('login'); // <- track request
+                window.mixpanel.identify(e); // <- track request
+                window.mixpanel.people.set({ roles: ['editor', 'admin'] }); // <- engage request
+                window.mixpanel.track('download'); // <- track request
+                window.mixpanel.track('logout'); // <- track request
             }, token, email);
 
             setTimeout(function() {
-                expect(trackRequestCount + engageRequestCount).toEqual(7);
+                expect(trackRequestCount).toEqual(5);
+                expect(engageRequestCount).toEqual(1);
                 done();
             }, 1000);
         })
