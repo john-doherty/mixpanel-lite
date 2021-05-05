@@ -49,12 +49,12 @@ describe('mixpanel-lite request', function () {
             // intercept ajax requests
             page.on('request', function(request) {
 
-                var url = request.url();
-                var query = url.substr(url.indexOf('?') + 1);
+                var requestUrl = request.url();
+                var query = requestUrl.substr(requestUrl.indexOf('?') + 1);
                 var params = querystring.parse(query);
 
                 // be sure we've intercepted the correct URL
-                expect(url.startsWith('https://api.mixpanel.com/track')).toEqual(true);
+                expect(requestUrl.startsWith('https://api.mixpanel.com/track')).toEqual(true);
 
                 // confirm it sent the correct params
                 expect(params).toBeDefined();
@@ -97,12 +97,12 @@ describe('mixpanel-lite request', function () {
             // intercept ajax requests
             page.on('request', function(request) {
 
-                var url = request.url();
-                var query = url.substr(url.indexOf('?') + 1);
+                var requestUrl = request.url();
+                var query = requestUrl.substr(requestUrl.indexOf('?') + 1);
                 var params = querystring.parse(query);
 
                 // be sure we've intercepted the correct URL
-                expect(url.startsWith('https://api.mixpanel.com/engage')).toEqual(true);
+                expect(requestUrl.startsWith('https://api.mixpanel.com/engage')).toEqual(true);
 
                 // confirm it sent the correct params
                 expect(params).toBeDefined();
