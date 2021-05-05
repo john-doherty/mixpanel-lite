@@ -130,4 +130,51 @@ describe('mixpanel-lite request', function () {
             done(err);
         });
     });
+
+    it('should send correct number of events', function (done) {
+
+        var now = (new Date()).getTime();
+        var token = '7da2a3262010d35f443a498253dba2d3';
+        var email = 'test-email-' + now + '@mixpanel-lite.info';
+        var trackRequestCount = 0;
+        var engageRequestCount = 0;
+
+        page.setRequestInterception(true).then(function() {
+
+            // intercept ajax requests
+            page.on('request', function(request) {
+
+                var requestUrl = request.url();
+
+                // count requests
+                if (requestUrl.startsWith('https://api.mixpanel.com/track')) {
+                    trackRequestCount++;
+                }
+                else if (requestUrl.startsWith('https://api.mixpanel.com/engage')) {
+                    engageRequestCount++;
+                }
+
+                request.continue();
+            });
+
+            // execute tracking (pass local vars into dom)
+            page.evaluate(function (t, e) {
+                window.mixpanel.init(t);
+                window.mixpanel.track('startup');
+                window.mixpanel.track('login');
+                window.mixpanel.identify(e);
+                window.mixpanel.people.set({ roles: ['editor', 'admin'] });
+                window.mixpanel.track('download');
+                window.mixpanel.track('logout');
+            }, token, email);
+
+            setTimeout(function() {
+                expect(trackRequestCount + engageRequestCount).toEqual(6);
+                done();
+            }, 1000);
+        })
+        .catch(function(err) {
+            done(err);
+        });
+    });
 });
