@@ -7,27 +7,24 @@
         <script>
 
             // project token from mixpanel.com
-            var token = '7da2a3262010d35f443a498253dba2d3';
+            var token = 'e96e0cf4a30bc1ce51c5a5cb8b11d721';
 
-            window.onload = function() {
+            // setup mixpanel
+            mixpanel.init(token);
 
-                // setup mixpanel
-                mixpanel.init(token);
+            // assign all future events to a user
+            mixpanel.identify('mixpanel-lite@email.com');
 
-                // assign all future events to a user
-                mixpanel.identify('mixpanel-lite@email.com');
+            // assign user info
+            mixpanel.people.set({
+                $email: 'mixpanel-lite@email.com' // only special properties need the $
+            });
 
-                // assign user info
-                mixpanel.people.set({
-                    $email: 'mixpanel-lite@email.com' // only special properties need the $
-                });
-
-                // track an event
-                mixpanel.track('Your Event Name', {
-                    firstName: 'Optional event property 1',
-                    lastName: 'Optional event property 2'
-                });
-            }
+            // track an event
+            mixpanel.track('Your Event Name', {
+                firstName: 'Optional event property 1',
+                lastName: 'Optional event property 2'
+            });
         </script>
     </head>
     <body>
