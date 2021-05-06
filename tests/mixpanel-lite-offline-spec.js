@@ -160,9 +160,9 @@ describe('mixpanel-lite offline', function () {
         });
     });
 
-    it('should drop first event when pending transactions exceed 250', function (done) {
+    it('should drop first event when pending transactions exceed 100', function (done) {
 
-        var maxEvents = 250;
+        var maxEvents = 100;
 
         // go offline
         page.setOfflineMode(true).then(function() {
@@ -198,7 +198,7 @@ describe('mixpanel-lite offline', function () {
             expect(data.shift().event).toBe('track-50');
 
             // check last event is the most recent (fifo)
-            expect(data.pop().event).toBe('track-299');
+            expect(data.pop().event).toBe('track-149');
             done();
         })
         .catch(function(err) {

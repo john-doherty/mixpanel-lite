@@ -335,7 +335,7 @@
         _key: 'mixpanel-lite',
 
         // maximum number of items allowed before we start dropping first items
-        _maxLength: 250,
+        _maxLength: 100,
 
         // returns a list of all transactions or empty array
         all: function () {
