@@ -239,6 +239,12 @@
         // otherwise, flag sending as started
         _sending = true;
 
+        // clear defer timeout if it exists
+        if (_deferSendTimer) {
+            clearTimeout(_deferSendTimer);
+            _deferSendTimer = null;
+        }
+
         // convert each pending transaction into a request promise
         var requests = items.map(function (item) {
 
