@@ -134,7 +134,7 @@ describe('mixpanel-lite request', function () {
     it('should send correct number of requests', function (done) {
 
         var now = (new Date()).getTime();
-        var token = 'e96e0cf4a30bc1ce51c5a5cb8b11d721';
+        var token = 'token-' + now;
         var email = 'test-' + now + '@mixpanel-lite.info';
         var trackRequestCount = 0;
         var engageRequestCount = 0;
