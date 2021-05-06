@@ -20,6 +20,7 @@
     }
 
     var _trackingUrl = 'https://api.mixpanel.com/track?ip=1&verbose=1&data=';
+    var _trackingBatchUrl = 'https://api.mixpanel.com/track#past-events-batch';
     var _engageUrl = 'https://api.mixpanel.com/engage?ip=1&verbose=1&data=';
     var _token = null;
     var _debugging = false;
