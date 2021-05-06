@@ -332,6 +332,9 @@
 
         _key: 'mixpanel-lite',
 
+        // maximum number of items allowed before we start dropping first items
+        _maxLength: 250,
+
         // returns a list of all transactions or empty array
         all: function () {
             return JSON.parse(localStorage.getItem(transactions._key) || '[]');
@@ -348,6 +351,12 @@
 
             // add a unique event id (makes it easier for us to clean up sent events)
             data._id = _internalEventIdPrefix + '-' + _internalEventIdCounter;
+
+            // if adding this item takes us over the max number of events
+            if (existing.length + 1 > transactions._maxLength) {
+                // remove the first item added
+                existing.shift();
+            }
 
             // add latest to end of stack
             existing.push(data);

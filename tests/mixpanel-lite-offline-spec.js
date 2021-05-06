@@ -191,4 +191,50 @@ describe('mixpanel-lite offline', function () {
             done(err);
         });
     });
+
+    it('should drop first event when pending transactions exceed 250', function (done) {
+
+        var maxEvents = 250;
+
+        // go offline
+        page.setOfflineMode(true).then(function() {
+
+            return page.evaluate(function (max) {
+
+                window.mixpanel.init('test-token');
+
+                // create some tracking events
+                for (var i = 0, l = max + 50; i < l; i++) {
+                    window.mixpanel.track('track-' + i);
+                }
+
+            }, maxEvents);
+        })
+        .then(function() {
+
+            // get value of local storage
+            return page.evaluate(function () {
+                return JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+            });
+        })
+        .then(function(data) {
+
+            // check the tracking data was saved to local storage
+            expect(data).toBeDefined();
+            expect(Array.isArray(data)).toBe(true);
+
+            // check the event limit was enforced
+            expect(data.length).toEqual(maxEvents);
+
+            // check first event is now 50 (0-49 dropped)
+            expect(data.shift().event).toBe('track-50');
+
+            // check last event is the most recent (fifo)
+            expect(data.pop().event).toBe('track-299');
+            done();
+        })
+        .catch(function(err) {
+            done(err);
+        });
+    });
 });
