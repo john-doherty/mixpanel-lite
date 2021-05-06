@@ -223,8 +223,8 @@
             // clear defer timeout if it exists
             if (_deferSendTimer) clearTimeout(_deferSendTimer);
 
-            // set a new timer to recall send in .05s
-            _deferSendTimer = setTimeout(send, 50);
+            // set a new timer to recall send in .5s
+            _deferSendTimer = setTimeout(send, 500);
 
             // exit
             return;
