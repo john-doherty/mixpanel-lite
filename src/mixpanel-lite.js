@@ -271,11 +271,6 @@
 
                     // mark item as completed
                     item.__completed = true;
-                })
-                .catch(function() {
-
-                    // mark item as not completed (we can resend this)
-                    item.__completed = false;
                 });
             };
         });
