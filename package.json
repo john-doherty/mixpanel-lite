@@ -33,7 +33,6 @@
     "express": "^4.17.1",
     "gulp": "^3.9.1",
     "gulp-minify": "1.0.0",
-    "gulp-remove-logging": "^1.2.0",
     "gulp-sizereport": "^1.2.0",
     "gulp-string-replace": "^0.4.0",
     "jasmine-node": "^3.0.0",

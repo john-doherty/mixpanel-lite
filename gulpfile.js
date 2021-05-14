@@ -2,14 +2,11 @@
 
 var gulp = require('gulp');
 var minifyJs = require('gulp-minify');
-var gulpRemoveLogging = require('gulp-remove-logging');
 var del = require('del');
 var runSequence = require('run-sequence');
 var replace = require('gulp-string-replace');
 var pjson = require('./package.json');
 var sizereport = require('gulp-sizereport');
-var replace = require('gulp-string-replace');
-var pjson = require('./package.json');
 
 gulp.task('clean', function () {
     return del(['dist']);
