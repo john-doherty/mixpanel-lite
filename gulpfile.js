@@ -3,10 +3,10 @@
 var gulp = require('gulp');
 var minifyJs = require('gulp-minify');
 var del = require('del');
-var runSequence = require('run-sequence');
+var runSequence = require('gulp4-run-sequence');
 var replace = require('gulp-string-replace');
 var pjson = require('./package.json');
-var sizereport = require('gulp-sizereport');
+var sizeReport = require('gulp-sizereport');
 
 gulp.task('clean', function () {
     return del(['dist']);
@@ -29,7 +29,7 @@ gulp.task('build-js', function () {
 
 gulp.task('sizereport', function () {
     return gulp.src('./dist/*')
-        .pipe(sizereport({
+        .pipe(sizeReport({
             gzip: true
         }));
 });

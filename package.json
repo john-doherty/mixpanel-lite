@@ -24,19 +24,22 @@
   ],
   "author": "John Doherty <contact@johndoherty.info> (www.johndoherty.info)",
   "license": "MIT",
-  "engines" : { "node" : ">=12.20.0" },
+  "engineStrict": true,
+  "engines": {
+    "node": "14.16.0",
+    "npm": "6.14.11"
+  },
   "devDependencies": {
     "del": "2.2.2",
     "eslint": "^4.18.2",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.2.0",
     "express": "^4.17.1",
-    "gulp": "^3.9.1",
-    "gulp-minify": "1.0.0",
+    "gulp": "^4.0.2",
     "gulp-sizereport": "^1.2.0",
     "gulp-string-replace": "^0.4.0",
-    "jasmine-node": "^3.0.0",
-    "run-sequence": "1.2.2"
+    "gulp4-run-sequence": "^1.0.1",
+    "jasmine-node": "^3.0.0"
   },
   "eslintConfig": {
     "extends": "airbnb-base",
@@ -152,6 +155,7 @@
     }
   },
   "dependencies": {
+    "gulp-minify": "^3.1.0",
     "puppeteer": "^9.1.1"
   }
 }
