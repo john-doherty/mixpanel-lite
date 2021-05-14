@@ -5,7 +5,7 @@
   "main": "src/mixpanel-lite.js",
   "scripts": {
     "start": "node server/dev-server.js",
-    "test": "jasmine-node tests --verbose --color --forceexit --junitreport || true",
+    "test": "node_modules/.bin/jasmine tests/**/*-spec.js --reporter=jasmine-console-reporter",
     "build": "npm test && node_modules/gulp/bin/gulp.js build",
     "clean": "node_modules/gulp/bin/gulp.js clean"
   },
@@ -39,7 +39,8 @@
     "gulp-sizereport": "^1.2.0",
     "gulp-string-replace": "^0.4.0",
     "gulp4-run-sequence": "^1.0.1",
-    "jasmine-node": "^3.0.0"
+    "jasmine": "^3.6.4",
+    "jasmine-console-reporter": "^3.1.0"
   },
   "eslintConfig": {
     "extends": "airbnb-base",
