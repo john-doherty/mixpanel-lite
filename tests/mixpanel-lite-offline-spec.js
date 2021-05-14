@@ -72,7 +72,7 @@ describe('mixpanel-lite offline', function () {
         });
     });
 
-    it('should send offline events when back online', async function (done) {
+    it('should send offline events when back online', async function () {
 
         var numberOfTrackEvents = 5;
 
@@ -115,10 +115,12 @@ describe('mixpanel-lite offline', function () {
         // once the adequate number of requests have executed, test will complete
         await page.setOfflineMode(false);
 
-        setTimeout(function() {
-            expect(numberOfTrackEvents).toEqual(0);
-            done();
-        }, 1500);
+        // wait a sec
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        expect(numberOfTrackEvents).toEqual(0);
+
+        return Promise.resolve();
     });
 
     it('should NOT suppress duplicate events', function (done) {
