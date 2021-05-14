@@ -1,11 +1,11 @@
 {
   "name": "mixpanel-lite",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A lightweight alternative to mixpanel-js with offline support for Hybrid and Progressive Web Apps",
   "main": "src/mixpanel-lite.js",
   "scripts": {
     "start": "node server/dev-server.js",
-    "test": "jasmine-node tests --verbose --color --forceexit --junitreport || true",
+    "test": "node_modules/.bin/jasmine tests/**/*-spec.js --reporter=jasmine-console-reporter",
     "build": "npm test && node_modules/gulp/bin/gulp.js build",
     "clean": "node_modules/gulp/bin/gulp.js clean"
   },
@@ -24,20 +24,23 @@
   ],
   "author": "John Doherty <contact@johndoherty.info> (www.johndoherty.info)",
   "license": "MIT",
-  "engines" : { "node" : ">=12.20.0" },
+  "engineStrict": true,
+  "engines": {
+    "node": "14.16.0",
+    "npm": "6.14.11"
+  },
   "devDependencies": {
     "del": "2.2.2",
     "eslint": "^4.18.2",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.2.0",
     "express": "^4.17.1",
-    "gulp": "^3.9.1",
-    "gulp-minify": "1.0.0",
-    "gulp-remove-logging": "^1.2.0",
+    "gulp": "^4.0.2",
     "gulp-sizereport": "^1.2.0",
     "gulp-string-replace": "^0.4.0",
-    "jasmine-node": "^3.0.0",
-    "run-sequence": "1.2.2"
+    "gulp4-run-sequence": "^1.0.1",
+    "jasmine": "^3.6.4",
+    "jasmine-console-reporter": "^3.1.0"
   },
   "eslintConfig": {
     "extends": "airbnb-base",
@@ -153,6 +156,7 @@
     }
   },
   "dependencies": {
+    "gulp-minify": "^3.1.0",
     "puppeteer": "^9.1.1"
   }
 }

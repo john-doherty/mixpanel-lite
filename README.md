@@ -1,6 +1,6 @@
 # mixpanel-lite
 
-[![Build Status](https://travis-ci.org/john-doherty/mixpanel-lite.svg?branch=master)](https://travis-ci.org/john-doherty/mixpanel-lite)
+[![Build Status](https://github.com/john-doherty/mixpanel-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/john-doherty/mixpanel-lite/actions/workflows/ci.yml)
 
 A lightweight _(2.9k)_ alternative to [mixpanel-js](https://github.com/mixpanel/mixpanel-js) with offline support for Hybrid and Progressive Web Apps.
 
