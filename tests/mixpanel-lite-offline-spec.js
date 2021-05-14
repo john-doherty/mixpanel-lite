@@ -2,7 +2,6 @@
 
 var path = require('path');
 var puppeteer = require('puppeteer');
-var querystring = require('querystring');
 
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
