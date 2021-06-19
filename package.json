@@ -1,6 +1,6 @@
 {
   "name": "mixpanel-lite",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "A lightweight alternative to mixpanel-js with offline support for Hybrid and Progressive Web Apps",
   "main": "src/mixpanel-lite.js",
   "scripts": {
@@ -40,7 +40,9 @@
     "gulp-string-replace": "^0.4.0",
     "gulp4-run-sequence": "^1.0.1",
     "jasmine": "^3.6.4",
-    "jasmine-console-reporter": "^3.1.0"
+    "jasmine-console-reporter": "^3.1.0",
+    "gulp-minify": "^3.1.0",
+    "puppeteer": "^9.1.1"
   },
   "eslintConfig": {
     "extends": "airbnb-base",
@@ -154,9 +156,5 @@
         "error"
       ]
     }
-  },
-  "dependencies": {
-    "gulp-minify": "^3.1.0",
-    "puppeteer": "^9.1.1"
   }
 }
