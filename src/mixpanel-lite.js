@@ -36,6 +36,13 @@
     var _properties = {};
 
     /**
+     * Returns value of the given super property
+     */
+    function getProperty(propertyName) {
+        return _properties[propertyName];
+    }
+
+    /**
      * Attempt to get the network connection type from w3c NetworkInformation or cordova-plugin-network-information
      * @returns {string} connection type or empty
      */
@@ -644,6 +651,9 @@
         identify: function (id) {
             console.log('mixpanel.identify(\'' + id + '\')');
         },
+        getProperty: function (propertyName) {
+            console.log('mixpanel.getProperty(\'' + propertyName + '\')');
+        },
         people: {
             set: function (data) {
                 console.log('mixpanel.people.set(' + JSON.stringify(data || {}) + ')');
@@ -661,6 +671,7 @@
         register: register,
         reset: reset,
         identify: identify,
+        getProperty: getProperty, 
         people: {
             set: setPeople
         },

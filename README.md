@@ -37,6 +37,9 @@ mixpanel.track('Your Event Name' {
     lastName: 'Optional event property 2'
 });
 
+// get super property
+mixpanel.getProperty('distinct_id');
+
 // clear current identity
 mixpanel.reset();
 
