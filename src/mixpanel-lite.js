@@ -178,6 +178,22 @@
     }
 
     /**
+     * Register a set of super properties unless they are already added
+     * @param {object} data - JSON key/value pair
+     * @returns {void}
+     */
+    function register_once(data) {
+        unpersistedData = Object.keys(data = {}).reduce(function (acc, key) {
+            if (!_properties[key]) {
+                acc[key] = data[key];
+            }
+            return acc;
+        }, {});
+
+        register(unpersistedData);
+    }
+
+    /**
      * set properties on an user record in engage
      * @param {object} data - properties to set
      * @returns {void}
@@ -644,6 +660,9 @@
         },
         register: function(data) {
             console.log('mixpanel.register(' + JSON.stringify(data || {}) + ')');
+        },
+        register_once: function(data) {
+            console.log('mixpanel.register_once(' + JSON.stringify(data || {}) + ')');
         },
         reset: function () {
             console.log('mixpanel.reset()');
