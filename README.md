@@ -26,6 +26,9 @@ mixpanel.identify('user@email.com');
 // register 'Gender' as a super property
 mixpanel.register({'Gender': 'Female'});
 
+// register 'Gender' as a super property if not already registered
+mixpanel.register_once({'Gender': 'Female'});
+
 // assign user info
 mixpanel.people.set({
     $email: 'user@email.com' // only special properties need the $
