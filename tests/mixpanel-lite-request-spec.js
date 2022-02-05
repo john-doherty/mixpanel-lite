@@ -184,4 +184,54 @@ describe('mixpanel-lite request', function () {
         })
         .catch(done.fail);
     });
+
+    it('should not drop any tracking events', async function() {
+
+        var now = new Date().getTime();
+        var maxEvents = utils.randomInteger(8, 33);
+        var eventsToSend = [];
+        var totalEventsSent = 0;
+
+        // create some tracking events
+        for (var i = 0; i < maxEvents; i++) {
+            eventsToSend.push({
+                eventName: `${now}-event-${i}`,
+                data: {
+                    now: now,
+                    index: i
+                }
+            });
+        }
+
+        // setup request intercept
+        await page.setRequestInterception(true);
+
+        // intercept and count tracking requests
+        page.on('request', function(request) {
+
+            if (request.url().startsWith('https://api.mixpanel.com/track')) {
+                totalEventsSent++;
+            }
+
+            request.continue();
+        });
+
+        // init lib
+        await page.evaluate(function () {
+            window.mixpanel.init('test-token');
+        });
+
+        // send events
+        await page.evaluate(function (events) {
+            for (var ii = 0, ll = events.length; ii < ll; ii++) {
+                window.mixpanel.track(events[ii].eventName, events[ii].data);
+            }
+        }, eventsToSend);
+
+        // wait a bit for them to send
+        await utils.sleep(6000);
+
+        // check we sent the correct number of requests
+        expect(totalEventsSent).toEqual(eventsToSend.length);
+    });
 });
