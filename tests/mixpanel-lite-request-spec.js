@@ -3,6 +3,7 @@
 var path = require('path');
 var puppeteer = require('puppeteer');
 var querystring = require('querystring');
+var utils = require('./utils');
 
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
@@ -33,7 +34,17 @@ describe('mixpanel-lite request', function () {
     });
 
     afterEach(function (done) {
-        browser.close().then(function() {
+
+        page.evaluate(function () {
+            return localStorage.removeItem('mixpanel-lite');
+        })
+        .then(function() {
+            return utils.sleep(500);
+        })
+        .then(function() {
+            return browser.close();
+        })
+        .then(function() {
             done();
         });
     });
@@ -81,9 +92,7 @@ describe('mixpanel-lite request', function () {
                 window.mixpanel.track(e);
             }, token, eventName);
         })
-        .catch(function(err) {
-            done(err);
-        });
+        .catch(done.fail);
     });
 
     it('should sent data to /engage endpoint', function (done) {
@@ -126,9 +135,7 @@ describe('mixpanel-lite request', function () {
                 window.mixpanel.people.set({ $email: e });
             }, token, email);
         })
-        .catch(function(err) {
-            done(err);
-        });
+        .catch(done.fail);
     });
 
     it('should send correct number of requests', function (done) {
@@ -175,8 +182,56 @@ describe('mixpanel-lite request', function () {
                 done();
             }, 1500);
         })
-        .catch(function(err) {
-            done(err);
+        .catch(done.fail);
+    });
+
+    it('should not drop any tracking events', async function() {
+
+        var now = new Date().getTime();
+        var maxEvents = utils.randomInteger(8, 33);
+        var eventsToSend = [];
+        var totalEventsSent = 0;
+
+        // create some tracking events
+        for (var i = 0; i < maxEvents; i++) {
+            eventsToSend.push({
+                eventName: `${now}-event-${i}`,
+                data: {
+                    now: now,
+                    index: i
+                }
+            });
+        }
+
+        // setup request intercept
+        await page.setRequestInterception(true);
+
+        // intercept and count tracking requests
+        page.on('request', function(request) {
+
+            if (request.url().startsWith('https://api.mixpanel.com/track')) {
+                totalEventsSent++;
+            }
+
+            request.continue();
         });
+
+        // init lib
+        await page.evaluate(function () {
+            window.mixpanel.init('test-token');
+        });
+
+        // send events
+        await page.evaluate(function (events) {
+            for (var ii = 0, ll = events.length; ii < ll; ii++) {
+                window.mixpanel.track(events[ii].eventName, events[ii].data);
+            }
+        }, eventsToSend);
+
+        // wait a bit for them to send
+        await utils.sleep(6000);
+
+        // check we sent the correct number of requests
+        expect(totalEventsSent).toEqual(eventsToSend.length);
     });
 });
