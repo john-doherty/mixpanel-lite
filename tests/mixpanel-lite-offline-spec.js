@@ -210,5 +210,66 @@ describe('mixpanel-lite offline', function () {
         .finally(done);
     });
 
+    it('should store correct number of events in order', function(done) {
+
+        var maxEvents = utils.randomInteger(19, 99);
+        var eventsToSend = [];
+
+        // create some tracking events
+        for (var i = 0; i < maxEvents; i++) {
+            eventsToSend.push({
+                eventName: 'tracking-event-' + i,
+                data: {
+                    index: i
+                }
+            });
+        }
+
+        // go offline
+        page.setOfflineMode(true).then(function() {
+
+            // init
+            return page.evaluate(function () {
+                window.mixpanel.init('test-token');
+            });
+        })
+        .then(function() {
+
+            // send events
+            return page.evaluate(function (events) {
+
+                for (var ii = 0, ll = events.length; ii < ll; ii++) {
+                    window.mixpanel.track(events[ii].eventName, events[ii].data);
+                }
+
+            }, eventsToSend);
+        })
+        .then(function() {
+
+            // get value of local storage
+            return page.evaluate(function () {
+                return JSON.parse(localStorage.getItem('mixpanel-lite') || {});
+            });
+        })
+        .then(function(data) {
+
+            // check the tracking data was saved to local storage
+            expect(data).toBeDefined();
+            expect(Array.isArray(data)).toBe(true);
+            expect(data.length).toEqual(eventsToSend.length);
+
+            var firstEvent = data[0];
+            var lastEvent = data[data.length - 1];
+
+            // check first event
+            expect(firstEvent.eventName).toEqual(eventsToSend[0].event);
+            expect(firstEvent.properties.index).toEqual(eventsToSend[0].data.index);
+
+            // check last event
+            expect(lastEvent.eventName).toEqual(eventsToSend[eventsToSend.length - 1].event);
+            expect(lastEvent.properties.index).toEqual(eventsToSend[eventsToSend.length - 1].data.index);
+        })
+        .catch(done.fail)
+        .finally(done);
     });
 });
