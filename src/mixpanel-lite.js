@@ -384,7 +384,7 @@
                 return item._id;
             });
 
-            // go through existing transactions, removing items that contain an matching id
+            // go through existing transactions, removing items that contain a matching id
             var remaining = transactions.all().filter(function(item) {
                 return idsToRemove.indexOf(item._id) === -1;
             });
@@ -673,7 +673,7 @@
         register: register,
         reset: reset,
         identify: identify,
-        getProperty: getProperty, 
+        getProperty: getProperty,
         people: {
             set: setPeople
         },
