@@ -37,6 +37,8 @@
 
     /**
      * Returns value of the given super property
+     * @param {string} propertyName - name of the property to retrieve
+     * @returns {any} value of property
      */
     function getProperty(propertyName) {
         return _properties[propertyName];
@@ -486,19 +488,19 @@
         var versionRegexs = {
             'Internet Explorer Mobile': /rv:(\d+(\.\d+)?)/,
             'Microsoft Edge': /Edge\/(\d+(\.\d+)?)/,
-            'Chrome': /Chrome\/(\d+(\.\d+)?)/,
+            Chrome: /Chrome\/(\d+(\.\d+)?)/,
             'Chrome iOS': /CriOS\/(\d+(\.\d+)?)/,
             'UC Browser': /(UCBrowser|UCWEB)\/(\d+(\.\d+)?)/,
-            'Safari': /Version\/(\d+(\.\d+)?)/,
+            Safari: /Version\/(\d+(\.\d+)?)/,
             'Mobile Safari': /Version\/(\d+(\.\d+)?)/,
-            'Opera': /(Opera|OPR)\/(\d+(\.\d+)?)/,
-            'Firefox': /Firefox\/(\d+(\.\d+)?)/,
+            Opera: /(Opera|OPR)\/(\d+(\.\d+)?)/,
+            Firefox: /Firefox\/(\d+(\.\d+)?)/,
             'Firefox iOS': /FxiOS\/(\d+(\.\d+)?)/,
-            'Konqueror': /Konqueror:(\d+(\.\d+)?)/,
-            'BlackBerry': /BlackBerry (\d+(\.\d+)?)/,
+            Konqueror: /Konqueror:(\d+(\.\d+)?)/,
+            BlackBerry: /BlackBerry (\d+(\.\d+)?)/,
             'Android Mobile': /android\s(\d+(\.\d+)?)/,
             'Internet Explorer': /(rv:|MSIE )(\d+(\.\d+)?)/,
-            'Mozilla': /rv:(\d+(\.\d+)?)/
+            Mozilla: /rv:(\d+(\.\d+)?)/
         };
         var regex = versionRegexs[browser];
         if (regex === undefined) {
