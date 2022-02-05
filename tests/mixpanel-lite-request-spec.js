@@ -3,6 +3,7 @@
 var path = require('path');
 var puppeteer = require('puppeteer');
 var querystring = require('querystring');
+var utils = require('./utils');
 
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
@@ -33,7 +34,17 @@ describe('mixpanel-lite request', function () {
     });
 
     afterEach(function (done) {
-        browser.close().then(function() {
+
+        page.evaluate(function () {
+            return localStorage.removeItem('mixpanel-lite');
+        })
+        .then(function() {
+            return utils.sleep(500);
+        })
+        .then(function() {
+            return browser.close();
+        })
+        .then(function() {
             done();
         });
     });
@@ -81,9 +92,7 @@ describe('mixpanel-lite request', function () {
                 window.mixpanel.track(e);
             }, token, eventName);
         })
-        .catch(function(err) {
-            done(err);
-        });
+        .catch(done.fail);
     });
 
     it('should sent data to /engage endpoint', function (done) {
@@ -126,9 +135,7 @@ describe('mixpanel-lite request', function () {
                 window.mixpanel.people.set({ $email: e });
             }, token, email);
         })
-        .catch(function(err) {
-            done(err);
-        });
+        .catch(done.fail);
     });
 
     it('should send correct number of requests', function (done) {
@@ -175,8 +182,6 @@ describe('mixpanel-lite request', function () {
                 done();
             }, 1500);
         })
-        .catch(function(err) {
-            done(err);
-        });
+        .catch(done.fail);
     });
 });

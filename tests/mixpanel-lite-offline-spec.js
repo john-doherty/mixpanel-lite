@@ -2,6 +2,7 @@
 
 var path = require('path');
 var puppeteer = require('puppeteer');
+var utils = require('./utils');
 
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
@@ -16,7 +17,6 @@ describe('mixpanel-lite offline', function () {
 
         puppeteer.launch({
             headless: true,
-            // dumpio: true,
             args: []
         })
         .then(function (item) {
@@ -33,7 +33,17 @@ describe('mixpanel-lite offline', function () {
     });
 
     afterEach(function (done) {
-        browser.close().then(function() {
+
+        page.evaluate(function () {
+            return localStorage.removeItem('mixpanel-lite');
+        })
+        .then(function() {
+            return utils.sleep(500);
+        })
+        .then(function() {
+            return browser.close();
+        })
+        .then(function() {
             done();
         });
     });
@@ -52,7 +62,7 @@ describe('mixpanel-lite offline', function () {
                 window.mixpanel.track(e);
 
                 // return local storage so we can inspect it
-                return JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+                return JSON.parse(localStorage.getItem('mixpanel-lite') || {});
             }, token, eventName);
         })
         .then(function(data) {
@@ -63,12 +73,9 @@ describe('mixpanel-lite offline', function () {
             expect(data.length).toEqual(1);
             expect(data[0].event).toEqual(eventName);
             expect(data[0].properties.token).toEqual(token);
-
-            done();
         })
-        .catch(function(err) {
-            done(err);
-        });
+        .catch(done.fail)
+        .finally(done);
     });
 
     it('should send offline events when back online', async function () {
@@ -102,7 +109,7 @@ describe('mixpanel-lite offline', function () {
 
         // get events from storage
         var data = await page.evaluate(function () {
-            return JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+            return JSON.parse(localStorage.getItem('mixpanel-lite') || {});
         });
 
         // check tracking events were saved to local storage
@@ -115,7 +122,7 @@ describe('mixpanel-lite offline', function () {
         await page.setOfflineMode(false);
 
         // wait a sec
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await utils.sleep(3000);
 
         expect(numberOfTrackEvents).toEqual(0);
 
@@ -145,7 +152,7 @@ describe('mixpanel-lite offline', function () {
 
             // get value of local storage
             return page.evaluate(function () {
-                return JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+                return JSON.parse(localStorage.getItem('mixpanel-lite') || {});
             });
         })
         .then(function(data) {
@@ -154,11 +161,9 @@ describe('mixpanel-lite offline', function () {
             expect(data).toBeDefined();
             expect(Array.isArray(data)).toBe(true);
             expect(data.length).toEqual(4);
-            done();
         })
-        .catch(function(err) {
-            done(err);
-        });
+        .catch(done.fail)
+        .finally(done);
     });
 
     it('should drop first event when pending transactions exceed 100', function (done) {
@@ -183,7 +188,7 @@ describe('mixpanel-lite offline', function () {
 
             // get value of local storage
             return page.evaluate(function () {
-                return JSON.parse(window.localStorage.getItem('mixpanel-lite') || {});
+                return JSON.parse(localStorage.getItem('mixpanel-lite') || {});
             });
         })
         .then(function(data) {
@@ -200,10 +205,10 @@ describe('mixpanel-lite offline', function () {
 
             // check last event is the most recent (fifo)
             expect(data.pop().event).toBe('track-149');
-            done();
         })
-        .catch(function(err) {
-            done(err);
-        });
+        .catch(done.fail)
+        .finally(done);
+    });
+
     });
 });
