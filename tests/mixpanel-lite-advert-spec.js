@@ -9,7 +9,7 @@ var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
 var browser = null;
 
-fdescribe('mixpanel-lite UTM', function () {
+describe('mixpanel-lite UTM', function () {
 
     // create a new browser instance before each test
     beforeEach(async function () {
