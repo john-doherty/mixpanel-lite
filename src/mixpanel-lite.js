@@ -299,15 +299,15 @@
             // mark sending complete
             _sending = false;
         })
-        .catch(function(err) {
+            .catch(function (err) {
 
-            if (_debugging) {
-                console.log(err);
-            }
+                if (_debugging) {
+                    console.log(err);
+                }
 
-            // something went wrong, allow this method to be recalled
-            _sending = false;
-        });
+                // something went wrong, allow this method to be recalled
+                _sending = false;
+            });
     }
 
     /* #region Helpers */
@@ -380,12 +380,12 @@
         remove: function (itemsToRemove) {
 
             // get array of ids to remove
-            var idsToRemove = (itemsToRemove || []).map(function(item) {
+            var idsToRemove = (itemsToRemove || []).map(function (item) {
                 return item._id;
             });
 
             // go through existing transactions, removing items that contain a matching id
-            var remaining = transactions.all().filter(function(item) {
+            var remaining = transactions.all().filter(function (item) {
                 return idsToRemove.indexOf(item._id) === -1;
             });
 
@@ -511,6 +511,90 @@
             return null;
         }
         return parseFloat(matches[matches.length - 2]);
+    }
+
+    /**
+     * Get advertising click IDs from the URL
+     * @returns {object} containing click ids
+     */
+    function getAdvertisingClickIDs() {
+
+        var params = new URLSearchParams(window.location.search || '');
+        var ids = {};
+
+        // dclid: DoubleClick Click Identifier, for tracking ads served by Google's DoubleClick.
+        if (params.has('dclid')) ids.dclid = params.get('dclid');
+
+        // fbclid: Facebook Click Identifier, for tracking interactions with Facebook ads.
+        if (params.has('fbclid')) ids.fbclid = params.get('fbclid');
+
+        // gclid: Google Click Identifier, for tracking Google Ads campaigns.
+        if (params.has('gclid')) ids.gclid = params.get('gclid');
+
+        // ko_click_id: A generic identifier for tracking clicks on certain advertising platforms.
+        if (params.has('ko_click_id')) ids.ko_click_id = params.get('ko_click_id');
+
+        // li_fat_id: LinkedIn Click Identifier, for tracking interactions with LinkedIn ads.
+        if (params.has('li_fat_id')) ids.li_fat_id = params.get('li_fat_id');
+
+        // msclkid: Microsoft Click Identifier, for tracking interactions with Microsoft Advertising.
+        if (params.has('msclkid')) ids.msclkid = params.get('msclkid');
+
+        // ttclid: TikTok Click Identifier, for tracking interactions with TikTok ads.
+        if (params.has('ttclid')) ids.ttclid = params.get('ttclid');
+
+        // twclid: Twitter Click Identifier, for tracking interactions with Twitter ads.
+        if (params.has('twclid')) ids.twclid = params.get('twclid');
+
+        // wbraid: Web Browser Referrer ID, used for tracking sources of traffic or conversions.
+        if (params.has('wbraid')) ids.wbraid = params.get('wbraid');
+
+        return ids;
+    }
+
+    /**
+     * Get UTM parameters from the URL
+     * @returns {object} containing values
+     */
+    function getUtmParams() {
+
+        var params = new URLSearchParams(window.location.search || '');
+        var utmParams = {};
+
+        // utm_source: Identifies which site sent the traffic, and is a required parameter.
+        if (params.has('utm_source')) utmParams.utm_source = params.get('utm_source');
+
+        // utm_medium: Identifies what type of link was used, such as cost per click or email.
+        if (params.has('utm_medium')) utmParams.utm_medium = params.get('utm_medium');
+
+        // utm_campaign: Identifies a specific product promotion or strategic campaign.
+        if (params.has('utm_campaign')) utmParams.utm_campaign = params.get('utm_campaign');
+
+        // utm_term: Identifies search terms.
+        if (params.has('utm_term')) utmParams.utm_term = params.get('utm_term');
+
+        // utm_content: Identifies what specifically was clicked to bring the user to the site, such as a banner ad or a text link.
+        if (params.has('utm_content')) utmParams.utm_content = params.get('utm_content');
+
+        return utmParams;
+    }
+
+    /**
+     * Get preferred language from the browser
+     * @return {string} containing language
+     */
+    function getBrowserLanguage() {
+
+        if (navigator.languages && navigator.languages.length) {
+            return navigator.languages[0]; // first language is preferred
+        }
+
+        // Fallbacks for older browsers
+        return navigator.language ||
+            navigator.userLanguage ||
+            navigator.browserLanguage ||
+            navigator.systemLanguage ||
+            'en'; // Default to English if none is found
     }
 
     /**
@@ -644,7 +728,7 @@
         track: function (eventName, data) {
             console.log('mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
         },
-        register: function(data) {
+        register: function (data) {
             console.log('mixpanel.register(' + JSON.stringify(data || {}) + ')');
         },
         reset: function () {
@@ -749,10 +833,13 @@
             distinct_id: uuid,
             $device_id: uuid,
             mp_lib: 'mixpanel-lite',
-            $lib_version: '0.0.0'
+            $lib_version: '0.0.0',
+            language: getBrowserLanguage(),
+            utm: getUtmParams(),
+            advertising: getAdvertisingClickIDs()
         };
 
-        // only track page URLs
+        // only track page URLs (not file etc)
         if (String(window.location.protocol).indexOf('http') === 0) {
             _properties.$current_url = window.location.href;
         }
