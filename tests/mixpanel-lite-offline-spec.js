@@ -16,7 +16,7 @@ describe('mixpanel-lite offline', function () {
         // Launch a new browser instance
         browser = await puppeteer.launch({
             headless: true,
-            args: []
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
 
         // get page
