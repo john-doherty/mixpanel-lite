@@ -514,69 +514,59 @@
     }
 
     /**
-     * Get advertising click IDs from the URL
-     * @returns {object} containing click ids
+     * Get advertising click IDs from the URL.
+     * 
+     * @returns {Object} An object containing the advertising click IDs found in the URL. The object can have the following properties:
+     * - facebookClickId {string}: for tracking interactions with Facebook ads
+     * - doubleClickId {string}: for tracking ads served by Google's DoubleClick
+     * - googleClickId {string}: for tracking Google Ads campaigns
+     * - genericClickId {string}: for tracking clicks on certain advertising platforms
+     * - linkedInClickId {string}: for tracking interactions with LinkedIn ads
+     * - microsoftClickId {string}: for tracking interactions with Microsoft Advertising
+     * - tikTokClickId {string}: for tracking interactions with TikTok ads
+     * - twitterClickId {string}: for tracking interactions with Twitter ads
+     * - webBrowserReferrerId {string}: for tracking sources of traffic or conversions.
+     * Each property is included only if its corresponding param exists
      */
     function getAdvertisingClickIDs() {
 
-        var params = new URLSearchParams(window.location.search || '');
-        var ids = {};
+        var urlParams = new URLSearchParams(window.location.search || '');
+        var clickIDs = {};
 
-        // dclid: DoubleClick Click Identifier, for tracking ads served by Google's DoubleClick.
-        if (params.has('dclid')) ids.dclid = params.get('dclid');
+        if (urlParams.has('dclid')) clickIDs.doubleClickId = urlParams.get('dclid');
+        if (urlParams.has('fbclid')) clickIDs.facebookClickId = urlParams.get('fbclid');
+        if (urlParams.has('gclid')) clickIDs.googleClickId = urlParams.get('gclid');
+        if (urlParams.has('ko_click_id')) clickIDs.genericClickId = urlParams.get('ko_click_id');
+        if (urlParams.has('li_fat_id')) clickIDs.linkedInClickId = urlParams.get('li_fat_id');
+        if (urlParams.has('msclkid')) clickIDs.microsoftClickId = urlParams.get('msclkid');
+        if (urlParams.has('ttclid')) clickIDs.tikTokClickId = urlParams.get('ttclid');
+        if (urlParams.has('twclid')) clickIDs.twitterClickId = urlParams.get('twclid');
+        if (urlParams.has('wbraid')) clickIDs.webBrowserReferrerId = urlParams.get('wbraid');
 
-        // fbclid: Facebook Click Identifier, for tracking interactions with Facebook ads.
-        if (params.has('fbclid')) ids.fbclid = params.get('fbclid');
-
-        // gclid: Google Click Identifier, for tracking Google Ads campaigns.
-        if (params.has('gclid')) ids.gclid = params.get('gclid');
-
-        // ko_click_id: A generic identifier for tracking clicks on certain advertising platforms.
-        if (params.has('ko_click_id')) ids.ko_click_id = params.get('ko_click_id');
-
-        // li_fat_id: LinkedIn Click Identifier, for tracking interactions with LinkedIn ads.
-        if (params.has('li_fat_id')) ids.li_fat_id = params.get('li_fat_id');
-
-        // msclkid: Microsoft Click Identifier, for tracking interactions with Microsoft Advertising.
-        if (params.has('msclkid')) ids.msclkid = params.get('msclkid');
-
-        // ttclid: TikTok Click Identifier, for tracking interactions with TikTok ads.
-        if (params.has('ttclid')) ids.ttclid = params.get('ttclid');
-
-        // twclid: Twitter Click Identifier, for tracking interactions with Twitter ads.
-        if (params.has('twclid')) ids.twclid = params.get('twclid');
-
-        // wbraid: Web Browser Referrer ID, used for tracking sources of traffic or conversions.
-        if (params.has('wbraid')) ids.wbraid = params.get('wbraid');
-
-        return ids;
+        return Object.keys(clickIDs).length > 0 ? clickIDs : null;
     }
 
     /**
      * Get UTM parameters from the URL
-     * @returns {object} containing values
+     * @returns {Object} UTM parameters found in the URL, can have the following properties:
+     * - source {string}: identifying which site sent the traffic
+     * - medium {string}: identifying the type of link used
+     * - campaign {string}: identifying a specific product promotion or campaign
+     * - term {string}: identifying search terms
+     * - content {string}: identifying what specifically was clicked to bring the user to the site
+     * Each property is included only if the param exists
      */
     function getUtmParams() {
-
         var params = new URLSearchParams(window.location.search || '');
         var utmParams = {};
 
-        // utm_source: Identifies which site sent the traffic, and is a required parameter.
-        if (params.has('utm_source')) utmParams.utm_source = params.get('utm_source');
+        if (params.has('utm_source')) utmParams.source = params.get('utm_source');
+        if (params.has('utm_medium')) utmParams.medium = params.get('utm_medium');
+        if (params.has('utm_campaign')) utmParams.campaign = params.get('utm_campaign');
+        if (params.has('utm_term')) utmParams.term = params.get('utm_term');
+        if (params.has('utm_content')) utmParams.content = params.get('utm_content');
 
-        // utm_medium: Identifies what type of link was used, such as cost per click or email.
-        if (params.has('utm_medium')) utmParams.utm_medium = params.get('utm_medium');
-
-        // utm_campaign: Identifies a specific product promotion or strategic campaign.
-        if (params.has('utm_campaign')) utmParams.utm_campaign = params.get('utm_campaign');
-
-        // utm_term: Identifies search terms.
-        if (params.has('utm_term')) utmParams.utm_term = params.get('utm_term');
-
-        // utm_content: Identifies what specifically was clicked to bring the user to the site, such as a banner ad or a text link.
-        if (params.has('utm_content')) utmParams.utm_content = params.get('utm_content');
-
-        return utmParams;
+        return Object.keys(utmParams).length > 0 ? utmParams : null;
     }
 
     /**
@@ -834,10 +824,18 @@
             $device_id: uuid,
             mp_lib: 'mixpanel-lite',
             $lib_version: '0.0.0',
-            language: getBrowserLanguage(),
-            utm: getUtmParams(),
-            advertising: getAdvertisingClickIDs()
+            language: getBrowserLanguage()
         };
+
+        var utmParams = getUtmParams();
+        if (utmParams) {
+            _properties.utm = utmParams;
+        }
+
+        var advertParams = getAdvertisingClickIDs();
+        if (advertParams) {
+            _properties.advert = advertParams;
+        }
 
         // only track page URLs (not file etc)
         if (String(window.location.protocol).indexOf('http') === 0) {
