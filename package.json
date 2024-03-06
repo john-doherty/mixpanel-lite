@@ -1,7 +1,7 @@
 {
   "name": "mixpanel-lite",
   "version": "1.5.7",
-  "description": "A lightweight alternative to mixpanel-js with offline support for Hybrid and Progressive Web Apps",
+  "description": "A lightweight alternative to mixpanel-js with offline support for PWAs",
   "main": "src/mixpanel-lite.js",
   "scripts": {
     "start": "node server/dev-server.js",
@@ -19,8 +19,7 @@
   "keywords": [
     "mixpanel",
     "offline",
-    "pwa",
-    "progressive"
+    "pwa"
   ],
   "author": "John Doherty <contact@johndoherty.info> (www.johndoherty.info)",
   "license": "MIT",

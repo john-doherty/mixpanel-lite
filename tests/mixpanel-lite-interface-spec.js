@@ -1,7 +1,7 @@
-'use strict';
-
 var path = require('path');
 var puppeteer = require('puppeteer');
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
@@ -10,36 +10,28 @@ var browser = null;
 describe('mixpanel-lite interface', function () {
 
     // create a new browser instance before each test
-    beforeEach(function (done) {
+    beforeEach(async function () {
 
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
-        puppeteer.launch({
+        // Launch a new browser instance
+        browser = await puppeteer.launch({
             headless: true,
             args: []
-        })
-        .then(function (item) {
-            browser = item;
-            return browser.newPage();
-        })
-        .then(function (item) {
-            page = item;
-            return page.goto(url);
-        })
-        .then(function() {
-            done();
         });
+
+        // get page
+        page = (await browser.pages())[0];
+
+        // Navigate to the desired URL
+        await page.goto(url);
     });
 
-    afterEach(function (done) {
-        browser.close().then(function() {
-            done();
-        });
+    afterEach(async function () {
+        return browser.close();
     });
 
-    it('should expose the correct interface', function (done) {
+    it('should expose the correct interface', async function () {
 
-        page.evaluate(function () {
+        return page.evaluate(function () {
             return window.mixpanel;
         })
         .then(function (mixpanel) {
@@ -54,26 +46,24 @@ describe('mixpanel-lite interface', function () {
             expect(mixpanel.mute).toBeDefined();
             expect(mixpanel.unmute).toBeDefined();
             expect(mixpanel.muted).toEqual(false);
-            done();
         });
     });
 
-    it('should return muted interface when muted', function (done) {
+    it('should return muted interface when muted', async function () {
 
-        page.evaluate(function () {
+        return page.evaluate(function () {
             window.mixpanel.init(null, { mute: true });
             return window.mixpanel;
         })
         .then(function (mixpanel) {
             expect(mixpanel).toBeDefined();
             expect(mixpanel.muted).toEqual(true);
-            done();
         });
     });
 
     it('should issue warning if no token passed', function (done) {
 
-        page.on('console', function(message) {
+        page.on('console', function (message) {
             expect(message).toBeDefined();
             expect(message._text).toEqual('mixpanel.init: invalid token');
             expect(message._type).toEqual('warning');
