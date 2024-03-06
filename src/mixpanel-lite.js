@@ -299,15 +299,15 @@
             // mark sending complete
             _sending = false;
         })
-        .catch(function(err) {
+            .catch(function (err) {
 
-            if (_debugging) {
-                console.log(err);
-            }
+                if (_debugging) {
+                    console.log(err);
+                }
 
-            // something went wrong, allow this method to be recalled
-            _sending = false;
-        });
+                // something went wrong, allow this method to be recalled
+                _sending = false;
+            });
     }
 
     /* #region Helpers */
@@ -380,12 +380,12 @@
         remove: function (itemsToRemove) {
 
             // get array of ids to remove
-            var idsToRemove = (itemsToRemove || []).map(function(item) {
+            var idsToRemove = (itemsToRemove || []).map(function (item) {
                 return item._id;
             });
 
             // go through existing transactions, removing items that contain a matching id
-            var remaining = transactions.all().filter(function(item) {
+            var remaining = transactions.all().filter(function (item) {
                 return idsToRemove.indexOf(item._id) === -1;
             });
 
@@ -511,6 +511,80 @@
             return null;
         }
         return parseFloat(matches[matches.length - 2]);
+    }
+
+    /**
+     * Get advertising click IDs from the URL.
+     * 
+     * @returns {Object} An object containing the advertising click IDs found in the URL. The object can have the following properties:
+     * - facebookClickId {string}: for tracking interactions with Facebook ads
+     * - doubleClickId {string}: for tracking ads served by Google's DoubleClick
+     * - googleClickId {string}: for tracking Google Ads campaigns
+     * - genericClickId {string}: for tracking clicks on certain advertising platforms
+     * - linkedInClickId {string}: for tracking interactions with LinkedIn ads
+     * - microsoftClickId {string}: for tracking interactions with Microsoft Advertising
+     * - tikTokClickId {string}: for tracking interactions with TikTok ads
+     * - twitterClickId {string}: for tracking interactions with Twitter ads
+     * - webBrowserReferrerId {string}: for tracking sources of traffic or conversions.
+     * Each property is included only if its corresponding param exists
+     */
+    function getAdvertisingClickIDs() {
+
+        var urlParams = new URLSearchParams(window.location.search || '');
+        var clickIDs = {};
+
+        if (urlParams.has('dclid')) clickIDs.doubleClickId = urlParams.get('dclid');
+        if (urlParams.has('fbclid')) clickIDs.facebookClickId = urlParams.get('fbclid');
+        if (urlParams.has('gclid')) clickIDs.googleClickId = urlParams.get('gclid');
+        if (urlParams.has('ko_click_id')) clickIDs.genericClickId = urlParams.get('ko_click_id');
+        if (urlParams.has('li_fat_id')) clickIDs.linkedInClickId = urlParams.get('li_fat_id');
+        if (urlParams.has('msclkid')) clickIDs.microsoftClickId = urlParams.get('msclkid');
+        if (urlParams.has('ttclid')) clickIDs.tikTokClickId = urlParams.get('ttclid');
+        if (urlParams.has('twclid')) clickIDs.twitterClickId = urlParams.get('twclid');
+        if (urlParams.has('wbraid')) clickIDs.webBrowserReferrerId = urlParams.get('wbraid');
+
+        return Object.keys(clickIDs).length > 0 ? clickIDs : null;
+    }
+
+    /**
+     * Get UTM parameters from the URL
+     * @returns {Object} UTM parameters found in the URL, can have the following properties:
+     * - source {string}: identifying which site sent the traffic
+     * - medium {string}: identifying the type of link used
+     * - campaign {string}: identifying a specific product promotion or campaign
+     * - term {string}: identifying search terms
+     * - content {string}: identifying what specifically was clicked to bring the user to the site
+     * Each property is included only if the param exists
+     */
+    function getUtmParams() {
+        var params = new URLSearchParams(window.location.search || '');
+        var utmParams = {};
+
+        if (params.has('utm_source')) utmParams.source = params.get('utm_source');
+        if (params.has('utm_medium')) utmParams.medium = params.get('utm_medium');
+        if (params.has('utm_campaign')) utmParams.campaign = params.get('utm_campaign');
+        if (params.has('utm_term')) utmParams.term = params.get('utm_term');
+        if (params.has('utm_content')) utmParams.content = params.get('utm_content');
+
+        return Object.keys(utmParams).length > 0 ? utmParams : null;
+    }
+
+    /**
+     * Get preferred language from the browser
+     * @return {string} containing language
+     */
+    function getBrowserLanguage() {
+
+        if (navigator.languages && navigator.languages.length) {
+            return navigator.languages[0]; // first language is preferred
+        }
+
+        // Fallbacks for older browsers
+        return navigator.language ||
+            navigator.userLanguage ||
+            navigator.browserLanguage ||
+            navigator.systemLanguage ||
+            'en'; // Default to English if none is found
     }
 
     /**
@@ -644,7 +718,7 @@
         track: function (eventName, data) {
             console.log('mixpanel.track(\'' + eventName + '\',' + JSON.stringify(data || {}) + ')');
         },
-        register: function(data) {
+        register: function (data) {
             console.log('mixpanel.register(' + JSON.stringify(data || {}) + ')');
         },
         reset: function () {
@@ -749,10 +823,21 @@
             distinct_id: uuid,
             $device_id: uuid,
             mp_lib: 'mixpanel-lite',
-            $lib_version: '0.0.0'
+            $lib_version: '0.0.0',
+            language: getBrowserLanguage()
         };
 
-        // only track page URLs
+        var utmParams = getUtmParams();
+        if (utmParams) {
+            _properties.utm = utmParams;
+        }
+
+        var advertParams = getAdvertisingClickIDs();
+        if (advertParams) {
+            _properties.advert = advertParams;
+        }
+
+        // only track page URLs (not file etc)
         if (String(window.location.protocol).indexOf('http') === 0) {
             _properties.$current_url = window.location.href;
         }

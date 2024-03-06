@@ -1,8 +1,8 @@
-'use strict';
-
 var path = require('path');
 var puppeteer = require('puppeteer');
 var utils = require('./utils');
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
@@ -11,50 +11,41 @@ var browser = null;
 describe('mixpanel-lite offline', function () {
 
     // create a new browser instance before each test
-    beforeEach(function (done) {
+    beforeEach(async function () {
 
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
-        puppeteer.launch({
+        // Launch a new browser instance
+        browser = await puppeteer.launch({
             headless: true,
-            args: []
-        })
-        .then(function (item) {
-            browser = item;
-            return browser.newPage();
-        })
-        .then(function (item) {
-            page = item;
-            return page.goto(url);
-        })
-        .then(function() {
-            done();
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
+
+        // get page
+        page = (await browser.pages())[0];
+
+        // Navigate to the desired URL
+        await page.goto(url);
     });
 
-    afterEach(function (done) {
+    afterEach(function () {
 
-        page.evaluate(function () {
+        return page.evaluate(function () {
             return localStorage.removeItem('mixpanel-lite');
         })
         .then(function() {
-            return utils.sleep(500);
+            return utils.sleep(250);
         })
         .then(function() {
             return browser.close();
-        })
-        .then(function() {
-            done();
         });
     });
 
-    it('should write data to localStorage first', function (done) {
+    it('should write data to localStorage first', async function () {
 
         var now = (new Date()).getTime();
         var token = 'test-token-' + now;
         var eventName = 'test-event-' + now;
 
-        page.setOfflineMode(true).then(function() {
+        return page.setOfflineMode(true).then(function() {
 
             // execute tracking (pass local vars into dom)
             return page.evaluate(function (t, e) {
@@ -73,9 +64,7 @@ describe('mixpanel-lite offline', function () {
             expect(data.length).toEqual(1);
             expect(data[0].event).toEqual(eventName);
             expect(data[0].properties.token).toEqual(token);
-        })
-        .catch(done.fail)
-        .finally(done);
+        });
     });
 
     it('should send offline events when back online', async function () {
@@ -129,14 +118,14 @@ describe('mixpanel-lite offline', function () {
         return Promise.resolve();
     });
 
-    it('should NOT suppress duplicate events', function (done) {
+    it('should NOT suppress duplicate events', async function () {
 
         var now = (new Date()).getTime();
         var token = 'test-token-' + now;
         var eventName = 'test-event-' + now;
 
         // go offline
-        page.setOfflineMode(true).then(function() {
+        return page.setOfflineMode(true).then(function() {
 
             // create some tracking events
             return page.evaluate(function (t, e) {
@@ -161,17 +150,15 @@ describe('mixpanel-lite offline', function () {
             expect(data).toBeDefined();
             expect(Array.isArray(data)).toBe(true);
             expect(data.length).toEqual(4);
-        })
-        .catch(done.fail)
-        .finally(done);
+        });
     });
 
-    it('should drop first event when pending transactions exceed 100', function (done) {
+    it('should drop first event when pending transactions exceed 100', async function () {
 
         var maxEvents = 100;
 
         // go offline
-        page.setOfflineMode(true).then(function() {
+        return page.setOfflineMode(true).then(function() {
 
             return page.evaluate(function (max) {
 
@@ -205,12 +192,10 @@ describe('mixpanel-lite offline', function () {
 
             // check last event is the most recent (fifo)
             expect(data.pop().event).toBe('track-149');
-        })
-        .catch(done.fail)
-        .finally(done);
+        });
     });
 
-    it('should store correct number of events in order', function(done) {
+    it('should store correct number of events in order', async function() {
 
         var maxEvents = utils.randomInteger(19, 99);
         var eventsToSend = [];
@@ -226,7 +211,7 @@ describe('mixpanel-lite offline', function () {
         }
 
         // go offline
-        page.setOfflineMode(true).then(function() {
+        return page.setOfflineMode(true).then(function() {
 
             // init
             return page.evaluate(function () {
@@ -268,8 +253,6 @@ describe('mixpanel-lite offline', function () {
             // check last event
             expect(lastEvent.eventName).toEqual(eventsToSend[eventsToSend.length - 1].event);
             expect(lastEvent.properties.index).toEqual(eventsToSend[eventsToSend.length - 1].data.index);
-        })
-        .catch(done.fail)
-        .finally(done);
+        });
     });
 });
