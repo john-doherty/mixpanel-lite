@@ -1,9 +1,9 @@
-'use strict';
-
 var path = require('path');
 var puppeteer = require('puppeteer');
 var querystring = require('querystring');
 var utils = require('./utils');
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
@@ -12,30 +12,24 @@ var browser = null;
 describe('mixpanel-lite request', function () {
 
     // create a new browser instance before each test
-    beforeEach(function (done) {
+    beforeEach(async function () {
 
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
-        puppeteer.launch({
+        // Launch a new browser instance
+        browser = await puppeteer.launch({
             headless: true,
             args: []
-        })
-        .then(function (item) {
-            browser = item;
-            return browser.newPage();
-        })
-        .then(function (item) {
-            page = item;
-            return page.goto(url);
-        })
-        .then(function() {
-            done();
         });
+
+        // get page
+        page = (await browser.pages())[0];
+
+        // Navigate to the desired URL
+        await page.goto(url);
     });
 
-    afterEach(function (done) {
+    afterEach(async function () {
 
-        page.evaluate(function () {
+        return page.evaluate(function () {
             return localStorage.removeItem('mixpanel-lite');
         })
         .then(function() {
@@ -43,9 +37,6 @@ describe('mixpanel-lite request', function () {
         })
         .then(function() {
             return browser.close();
-        })
-        .then(function() {
-            done();
         });
     });
 
