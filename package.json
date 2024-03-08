@@ -5,7 +5,7 @@
   "main": "src/mixpanel-lite.js",
   "scripts": {
     "start": "node server/dev-server.js",
-    "test": "node_modules/.bin/jasmine tests/**/*-spec.js --reporter=jasmine-console-reporter",
+    "test": "NODE_ENV=test node_modules/.bin/jasmine --config=tests/jasmine/config.json",
     "build": "npm test && node_modules/gulp/bin/gulp.js build",
     "clean": "node_modules/gulp/bin/gulp.js clean"
   },
