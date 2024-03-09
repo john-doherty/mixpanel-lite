@@ -42,8 +42,26 @@ async function setMixpanelToken(puppeteerPage, mixpanelToken) {
 async function sendMixpanelEvent(puppeteerPage, eventName, eventData) {
 
     return puppeteerPage.evaluate(function (name, data) {
-        window.mixpanel.track(name, data);
+        window.mixpanel.track(name, data || {});
     }, eventName, eventData);
+}
+
+/**
+ * Get data value from mixpanel tracking URL as JSON object
+ * @param {string} url - mixpanel tracking URL with `?data=` param
+ * @returns {object} JSON data
+ */
+function getJsonPayloadFromMixpanelUrl(url) {
+
+    var encodedData = getQueryParamValue(url, 'data') || '';
+    var decodedData = Buffer.from(encodedData, 'base64').toString('ascii');
+
+    try {
+        return JSON.parse(decodedData);
+    }
+    catch (e) {
+        return null;
+    }
 }
 
 /**
@@ -136,5 +154,6 @@ module.exports = {
     sendMixpanelEvent: sendMixpanelEvent,
     waitForPuppeteerRequests: waitForPuppeteerRequests,
     getMixpanelLocalStorage: getMixpanelLocalStorage,
-    getQueryParamValue: getQueryParamValue
+    getQueryParamValue: getQueryParamValue,
+    getJsonPayloadFromMixpanelUrl: getJsonPayloadFromMixpanelUrl
 };
