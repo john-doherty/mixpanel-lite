@@ -284,8 +284,8 @@ describe('mixpanel-lite offline', function () {
         var results = await trackRequests;
 
         // decode the data and convert to JSON object so we can inspect
-        var eventPayload1 = JSON.parse(Buffer.from(utils.getQueryParamValue(results[0].url, 'data'), 'base64').toString('ascii'));
-        var eventPayload2 = JSON.parse(Buffer.from(utils.getQueryParamValue(results[1].url, 'data'), 'base64').toString('ascii'));
+        var eventPayload1 = utils.getJsonPayloadFromMixpanelUrl(results[0].url);
+        var eventPayload2 = utils.getJsonPayloadFromMixpanelUrl(results[1].url);
 
         expect(eventPayload1.event).toEqual(event1.name);
         expect(eventPayload1.properties.offline).toEqual(undefined);
