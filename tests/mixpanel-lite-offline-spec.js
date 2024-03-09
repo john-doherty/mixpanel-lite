@@ -1,6 +1,7 @@
 var path = require('path');
 var puppeteer = require('puppeteer');
 var utils = require('./utils');
+var cuid = require('cuid');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
@@ -199,11 +200,13 @@ describe('mixpanel-lite offline', function () {
 
         var maxEvents = utils.randomInteger(19, 99);
         var eventsToSend = [];
+        var i = 0;
+        var l = 0;
 
         // create some tracking events
-        for (var i = 0; i < maxEvents; i++) {
+        for (i = 0; i < maxEvents; i++) {
             eventsToSend.push({
-                eventName: 'tracking-event-' + i,
+                eventName: cuid.slug(),
                 data: {
                     index: i
                 }
@@ -211,48 +214,32 @@ describe('mixpanel-lite offline', function () {
         }
 
         // go offline
-        return page.setOfflineMode(true).then(function() {
+        await page.setOfflineMode(true);
 
-            // init
-            return page.evaluate(function () {
-                window.mixpanel.init('test-token');
-            });
-        })
-        .then(function() {
+        await utils.setMixpanelToken(page, 'test-token');
 
-            // send events
-            return page.evaluate(function (events) {
+        // send events
+        for (i = 0, l = eventsToSend.length; i < l; i++) {
+            await utils.sendMixpanelEvent(page, eventsToSend[i].eventName, eventsToSend[i].data);
+        }
 
-                for (var ii = 0, ll = events.length; ii < ll; ii++) {
-                    window.mixpanel.track(events[ii].eventName, events[ii].data);
-                }
+        // get value of local storage
+        var data = await utils.getMixpanelLocalStorage(page);
 
-            }, eventsToSend);
-        })
-        .then(function() {
+        // check the tracking data was saved to local storage
+        expect(data).toBeDefined();
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toEqual(eventsToSend.length);
 
-            // get value of local storage
-            return page.evaluate(function () {
-                return JSON.parse(localStorage.getItem('mixpanel-lite') || {});
-            });
-        })
-        .then(function(data) {
+        var firstEvent = data[0];
+        var lastEvent = data[data.length - 1];
 
-            // check the tracking data was saved to local storage
-            expect(data).toBeDefined();
-            expect(Array.isArray(data)).toBe(true);
-            expect(data.length).toEqual(eventsToSend.length);
+        // check first event
+        expect(firstEvent.event).toEqual(eventsToSend[0].eventName);
+        expect(firstEvent.properties.index).toEqual(eventsToSend[0].data.index);
 
-            var firstEvent = data[0];
-            var lastEvent = data[data.length - 1];
-
-            // check first event
-            expect(firstEvent.eventName).toEqual(eventsToSend[0].event);
-            expect(firstEvent.properties.index).toEqual(eventsToSend[0].data.index);
-
-            // check last event
-            expect(lastEvent.eventName).toEqual(eventsToSend[eventsToSend.length - 1].event);
-            expect(lastEvent.properties.index).toEqual(eventsToSend[eventsToSend.length - 1].data.index);
-        });
+        // check last event
+        expect(lastEvent.event).toEqual(eventsToSend[eventsToSend.length - 1].eventName);
+        expect(lastEvent.properties.index).toEqual(eventsToSend[eventsToSend.length - 1].data.index);
     });
 });

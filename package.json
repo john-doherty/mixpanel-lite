@@ -155,5 +155,8 @@
         "error"
       ]
     }
+  },
+  "dependencies": {
+    "cuid": "^3.0.0"
   }
 }
