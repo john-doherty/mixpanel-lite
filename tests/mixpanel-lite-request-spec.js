@@ -69,6 +69,7 @@ describe('mixpanel-lite request', function () {
         expect(eventPayload.properties.$browser).toEqual('Chrome');
         expect(eventPayload.properties.token).toEqual(token);
         expect(eventPayload.properties.automated).toEqual(true);
+        expect(eventPayload.properties.dev).toEqual(true);
         expect(eventPayload.event).toEqual(eventName);
     });
 

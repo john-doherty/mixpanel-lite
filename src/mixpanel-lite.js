@@ -122,7 +122,10 @@
             eventData.properties.automated = true;
         }
 
-        // eventData.properties.automated = isBrowserAutomated();
+        var isDevMode = isDevEnviroment();
+        if (isDevMode) {
+            eventData.properties.dev = true;
+        }
 
         // save the event
         transactions.add(eventData);
@@ -641,6 +644,14 @@
         }
 
         return false;
+    }
+
+    /**
+     * Checks if the script is running locally
+     * @returns {boolean} true if running locally, otherwise false
+     */
+    function isDevEnviroment() {
+        return (/^localhost$|^127(\.[0-9]+){0,2}\.[0-9]+$|^\[::1?\]$/.test(location.hostname) || location.protocol === 'file:');
     }
 
     /**
