@@ -57,7 +57,7 @@ describe('mixpanel-lite request', function () {
         // send event (in offline mode)
         await utils.sendMixpanelEvent(page, eventName);
 
-        // Now wait for both requests to be sent
+        // Now wait for requests to be sent
         var results = await trackRequests;
 
         // decode the data and convert to JSON object so we can inspect
@@ -68,6 +68,7 @@ describe('mixpanel-lite request', function () {
         expect(eventPayload.properties.distinct_id).toBeDefined();
         expect(eventPayload.properties.$browser).toEqual('Chrome');
         expect(eventPayload.properties.token).toEqual(token);
+        expect(eventPayload.properties.automated).toEqual(true);
         expect(eventPayload.event).toEqual(eventName);
     });
 

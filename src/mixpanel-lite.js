@@ -117,6 +117,13 @@
             eventData.properties.offline = true;
         }
 
+        var isAutomated = isBrowserAutomated();
+        if (isAutomated) {
+            eventData.properties.automated = true;
+        }
+
+        // eventData.properties.automated = isBrowserAutomated();
+
         // save the event
         transactions.add(eventData);
 
@@ -590,6 +597,50 @@
             navigator.browserLanguage ||
             navigator.systemLanguage ||
             'en'; // Default to English if none is found
+    }
+
+    /**
+     * Determines if the current browser session is controlled by automation software
+     * @example
+     * if (isBrowserAutomated()) {
+     *     console.log('The browser is automated.');
+     * } else {
+     *     console.log('The browser is not automated.');
+     * }
+     * @returns {boolean} true if the browser session is controlled by automation software, otherwise false.
+     */
+    function isBrowserAutomated() {
+        // Check for PhantomJS
+        if (window._phantom || window.phantom) {
+            return true;
+        }
+
+        // Check for Nightmare
+        if (window.__nightmare) {
+            return true;
+        }
+
+        // Check for WebDriver (Puppeteer, Selenium)
+        if (navigator.webdriver) {
+            return true;
+        }
+
+        // Check for Cypress
+        if (window.Cypress) {
+            return true;
+        }
+
+        // Check for headless Chrome
+        if (/HeadlessChrome/.test(window.navigator.userAgent)) {
+            return true;
+        }
+
+        // Check for reduced screen size (common in headless environments)
+        if (screen.width === 0 || screen.height === 0) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
