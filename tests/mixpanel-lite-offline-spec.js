@@ -242,4 +242,55 @@ describe('mixpanel-lite offline', function () {
         expect(lastEvent.event).toEqual(eventsToSend[eventsToSend.length - 1].eventName);
         expect(lastEvent.properties.index).toEqual(eventsToSend[eventsToSend.length - 1].data.index);
     });
+
+    it('should add .offline=true for events captured offline', async function() {
+
+        // create some tracking events
+        var event1 = {
+            name: `event-${cuid.slug()}`,
+            data: {
+                age: utils.randomInteger(8, 33)
+            }
+        };
+        var event2 = {
+            name: `event-${cuid.slug()}`,
+            data: {
+                age: utils.randomInteger(8, 33)
+            }
+        };
+
+        // setup request intercept
+        await page.setRequestInterception(true);
+
+        // setup mixpanel
+        await utils.setMixpanelToken(page, 'test-token');
+
+        // listen for track requests
+        var trackRequests = utils.waitForPuppeteerRequests(page, 2, 'https://api.mixpanel.com/track');
+
+        // send event (in online mode)
+        await utils.sendMixpanelEvent(page, event1.name, event1.data);
+
+        // go offline
+        await page.setOfflineMode(true);
+
+        // send event (in offline mode)
+        await utils.sendMixpanelEvent(page, event2.name, event2.data);
+
+        // go back online
+        await page.setOfflineMode(false);
+
+        // Now wait for both requests to be sent
+        var results = await trackRequests;
+
+        // decode the data and convert to JSON object so we can inspect
+        var eventPayload1 = JSON.parse(Buffer.from(utils.getQueryParamValue(results[0].url, 'data'), 'base64').toString('ascii'));
+        var eventPayload2 = JSON.parse(Buffer.from(utils.getQueryParamValue(results[1].url, 'data'), 'base64').toString('ascii'));
+
+        expect(eventPayload1.event).toEqual(event1.name);
+        expect(eventPayload1.properties.offline).toEqual(undefined);
+
+        expect(eventPayload2.event).toEqual(event2.name);
+        expect(eventPayload2.properties.offline).toEqual(true);
+    });
 });

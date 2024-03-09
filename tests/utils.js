@@ -83,23 +83,29 @@ function waitForPuppeteerRequests(page, requestCount, requestedUrl, requestMetho
     var allRequestsCollected = new Promise(function (resolve) {
 
         // Function to handle each request
-        var handleRequest = function(request) {
+        var handleRequest = function (request) {
             if (requestDetails.length >= requestCount) {
                 return;
             }
 
-            var parsedUrl = new URL(request.url());
+            var url = request.url();
+            var parsedUrl = new URL(url);
             var baseUrl = parsedUrl.origin + parsedUrl.pathname;
             var method = request.method().toUpperCase();
             var postData = request.postData();
 
-            if ((!requestedUrl || baseUrl === requestedUrl) && method === requestMethod && postData) {
-                requestDetails.push({ url: baseUrl, method: method, postData: postData });
+            // match URL without query params
+            if ((!requestedUrl || baseUrl === requestedUrl) && method === requestMethod) {
+
+                // store the response
+                requestDetails.push({ url: url, method: method, postData: postData });
 
                 if (requestDetails.length === requestCount) {
                     resolve(requestDetails);
                 }
             }
+
+            request.continue();
         };
 
         // Attach the listener to the page object
@@ -109,11 +115,26 @@ function waitForPuppeteerRequests(page, requestCount, requestedUrl, requestMetho
     return allRequestsCollected;
 }
 
+/**
+ * Extracts the value of a specific query parameter from a given URL.
+ * If the parameter does not exist, returns an empty string.
+ *
+ * @param {string} url - The URL from which to extract the parameter value.
+ * @param {string} paramName - The name of the query parameter to extract.
+ * @returns {string} The value of the query parameter if it exists, otherwise an empty string.
+ */
+function getQueryParamValue(url, paramName) {
+    var urlObj = new URL(url);
+    var paramValue = urlObj.searchParams.get(paramName);
+    return paramValue !== null ? paramValue : '';
+}
+
 module.exports = {
     sleep: sleep,
     randomInteger: randomInteger,
     setMixpanelToken: setMixpanelToken,
     sendMixpanelEvent: sendMixpanelEvent,
     waitForPuppeteerRequests: waitForPuppeteerRequests,
-    getMixpanelLocalStorage: getMixpanelLocalStorage
+    getMixpanelLocalStorage: getMixpanelLocalStorage,
+    getQueryParamValue: getQueryParamValue
 };

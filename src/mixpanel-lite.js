@@ -112,6 +112,11 @@
             }
         });
 
+        // track online status
+        if (!window.navigator.onLine) {
+            eventData.properties.offline = true;
+        }
+
         // save the event
         transactions.add(eventData);
 
