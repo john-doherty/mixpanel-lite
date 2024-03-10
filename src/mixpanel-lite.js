@@ -603,6 +603,7 @@
      * @returns {boolean} true if the browser session is controlled by automation software, otherwise false.
      */
     function isBrowserAutomated() {
+
         // Check for PhantomJS
         if (window._phantom || window.phantom) {
             return true;
