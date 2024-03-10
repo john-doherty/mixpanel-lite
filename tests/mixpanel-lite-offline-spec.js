@@ -3,8 +3,6 @@ var puppeteer = require('puppeteer');
 var utils = require('./utils');
 var cuid = require('cuid');
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
 var browser = null;
