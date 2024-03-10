@@ -55,6 +55,16 @@ if (mixpanel.muted) {
 }
 ```
 
+### Additional tracking properties
+
+mixpanel-lite adds a few additional properties to each tracking event, to help make sense of the data:
+
+Name        | Type      | Description
+:-----------|:----------|:---------------------------------------------------
+`offline`   | `boolean` | `true` if event captured when offline
+`automated` | `boolean` | `true` if event captured using an automated browser
+`dev`       | `boolean` | `true` if event captured when running locally
+
 ## Contributing
 
 Pull requests are welcomed:
