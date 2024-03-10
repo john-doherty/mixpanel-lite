@@ -7,8 +7,6 @@
  */
 (function (window, document) {
 
-    'use strict';
-
     if (!window.localStorage) {
         console.warn('mixpanel-lite: localStorage not supported');
         return;
@@ -19,6 +17,7 @@
         return;
     }
 
+    var _storage = localStorage;
     var _trackingUrl = 'https://api.mixpanel.com/track?ip=1&verbose=1&data=';
     var _trackingBatchUrl = 'https://api.mixpanel.com/track#past-events-batch';
     var _engageUrl = 'https://api.mixpanel.com/engage?ip=1&verbose=1&data=';
@@ -352,6 +351,97 @@
     }
 
     /**
+     * localStorage helper (takes care of casting types)
+     * https://github.com/john-doherty/simple-storage
+     */
+    var simpleStorage = {
+
+        /**
+         * Check if item exists in local storage.
+         * @param {string} key - variable name
+         * @return {boolean} true if key exists, otherwise false
+         */
+        exists: function (key) {
+            return Object.prototype.hasOwnProperty.call(_storage, key);
+        },
+
+        /**
+         * Get an item from local storage
+         * @param {string} key - variable name
+         * @return {any} correctly cast value if it exists
+         */
+        get: function (key) {
+
+            // always get value as a string
+            var value = String(_storage.getItem(key));
+
+            if (value === 'null') return null;
+
+            if (value === 'undefined') return undefined;
+
+            // if it's a float
+            if (/^[0-9.]+$/.test(value)) return parseFloat(value);
+
+            // if it's an integer
+            if (/^[-0-9]+$/.test(value)) return parseInt(value, 10);
+
+            // if it's a boolean
+            if (value === 'true' || value === 'false') return (value === 'true');
+
+            // if it's a JSON object
+            if (value[0] === '{' || value[0] === '[') {
+                try {
+                    var parsed = JSON.parse(value);
+                    if (typeof parsed === 'object' || Array.isArray(parsed)) {
+                        return parsed;
+                    }
+                }
+                catch (e) {
+                    // Not a JSON object or array
+                }
+            }
+
+            return value;
+        },
+
+        /**
+         * Save an item to local storage
+         * @param {string} key - variable name
+         * @param {any} value - value of variable to save
+         * @return {void}
+         */
+        set: function (key, value) {
+
+            if (typeof key !== 'string') {
+                throw new TypeError('localStorage: Key must be a string');
+            }
+
+            if (typeof value === 'object' || Array.isArray(value)) {
+                value = JSON.stringify(value);
+            }
+
+            _storage.setItem(key, value);
+        },
+
+        /**
+         * Remove an item from local storage
+         * @param {string} key - variable name
+         * @return {void}
+         */
+        remove: function (key) {
+            _storage.removeItem(key);
+        },
+
+        /**
+         * Clear all local storage values
+         * @return {void}
+         */
+        clear: function () {
+            _storage.clear();
+        }
+    };
+
+    /**
      * local storage helper for saving transactions in order
      */
     var transactions = {
@@ -363,7 +453,7 @@
 
         // returns a list of all transactions or empty array
         all: function () {
-            return JSON.parse(localStorage.getItem(transactions._key) || '[]');
+            return simpleStorage.get(transactions._key) || [];
         },
 
         // adds an item to the transaction log
@@ -388,7 +478,7 @@
             existing.push(data);
 
             // save changes
-            localStorage.setItem(transactions._key, JSON.stringify(existing));
+            simpleStorage.set(transactions._key, existing);
         },
 
         // removes events from the transaction log
@@ -405,12 +495,12 @@
             });
 
             // save changes
-            localStorage.setItem(transactions._key, JSON.stringify(remaining));
+            simpleStorage.set(transactions._key, remaining);
         },
 
         // clears any pending transactions
         clear: function () {
-            localStorage.setItem(transactions._key, JSON.stringify([]));
+            simpleStorage.set(transactions._key, []);
         }
     };
 
@@ -700,7 +790,7 @@
     function getNewUUID() {
 
         // Time-based entropy
-        var T = function() {
+        var T = function () {
             var time = 1 * new Date(); // cross-browser version of Date.now()
             var ticks;
             if (window.performance && window.performance.now) {
