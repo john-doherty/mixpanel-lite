@@ -3,13 +3,11 @@ var puppeteer = require('puppeteer');
 var querystring = require('querystring');
 var utils = require('./utils');
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
 var browser = null;
 
-describe('mixpanel-lite UTM', function () {
+describe('mixpanel-lite .utm', function () {
 
     // create a new browser instance before each test
     beforeEach(async function () {

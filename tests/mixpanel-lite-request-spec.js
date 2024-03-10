@@ -3,8 +3,6 @@ var puppeteer = require('puppeteer');
 var querystring = require('querystring');
 var utils = require('./utils');
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
 var browser = null;
@@ -40,50 +38,36 @@ describe('mixpanel-lite request', function () {
         });
     });
 
-    it('should sent data to /track endpoint', function (done) {
+    it('should sent data to /track endpoint', async function () {
 
         var now = (new Date()).getTime();
         var token = 'test-token-' + now;
         var eventName = 'test-event-' + now;
 
-        page.setRequestInterception(true).then(function() {
+        await page.setRequestInterception(true);
 
-            // intercept ajax requests
-            page.on('request', function(request) {
+        // setup mixpanel
+        await utils.setMixpanelToken(page, token);
 
-                var requestUrl = request.url();
-                var query = requestUrl.substr(requestUrl.indexOf('?') + 1);
-                var params = querystring.parse(query);
+        // listen for track requests
+        var trackRequests = utils.waitForPuppeteerRequests(page, 1, 'https://api.mixpanel.com/track');
 
-                // be sure we've intercepted the correct URL
-                expect(requestUrl.startsWith('https://api.mixpanel.com/track')).toEqual(true);
+        // send event (in offline mode)
+        await utils.sendMixpanelEvent(page, eventName);
 
-                // confirm it sent the correct params
-                expect(params).toBeDefined();
-                expect(params._).toBeDefined();
-                expect(params.data).toBeDefined();
-                expect(params.data).not.toEqual('');
+        // Now wait for requests to be sent
+        var results = await trackRequests;
 
-                // decode the data and convert to JSON object so we can inspect
-                var data = JSON.parse(Buffer.from(params.data, 'base64').toString('ascii'));
+        // decode the data and convert to JSON object so we can inspect
+        var eventPayload = utils.getJsonPayloadFromMixpanelUrl(results[0].url);
 
-                // check the tracking data we sent is correct
-                expect(data.properties).toBeDefined();
-                expect(data.properties.distinct_id).toBeDefined();
-                expect(data.properties.$browser).toEqual('Chrome');
-                expect(data.properties.token).toEqual(token);
-                expect(data.event).toEqual(eventName);
-
-                done();
-            });
-
-            // execute tracking (pass local vars into dom)
-            page.evaluate(function (t, e) {
-                window.mixpanel.init(t);
-                window.mixpanel.track(e);
-            }, token, eventName);
-        })
-        .catch(done.fail);
+        // check the tracking data we sent is correct
+        expect(eventPayload.properties).toBeDefined();
+        expect(eventPayload.properties.distinct_id).toBeDefined();
+        expect(eventPayload.properties.$browser).toEqual('Chrome');
+        expect(eventPayload.properties.token).toEqual(token);
+        expect(eventPayload.properties.dev).toEqual(true);
+        expect(eventPayload.event).toEqual(eventName);
     });
 
     it('should sent data to /engage endpoint', function (done) {

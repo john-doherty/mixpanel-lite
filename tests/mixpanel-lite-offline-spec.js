@@ -1,14 +1,13 @@
 var path = require('path');
 var puppeteer = require('puppeteer');
 var utils = require('./utils');
-
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+var cuid = require('cuid');
 
 var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
 var browser = null;
 
-describe('mixpanel-lite offline', function () {
+describe('mixpanel-lite .offline', function () {
 
     // create a new browser instance before each test
     beforeEach(async function () {
@@ -199,11 +198,13 @@ describe('mixpanel-lite offline', function () {
 
         var maxEvents = utils.randomInteger(19, 99);
         var eventsToSend = [];
+        var i = 0;
+        var l = 0;
 
         // create some tracking events
-        for (var i = 0; i < maxEvents; i++) {
+        for (i = 0; i < maxEvents; i++) {
             eventsToSend.push({
-                eventName: 'tracking-event-' + i,
+                eventName: cuid.slug(),
                 data: {
                     index: i
                 }
@@ -211,48 +212,83 @@ describe('mixpanel-lite offline', function () {
         }
 
         // go offline
-        return page.setOfflineMode(true).then(function() {
+        await page.setOfflineMode(true);
 
-            // init
-            return page.evaluate(function () {
-                window.mixpanel.init('test-token');
-            });
-        })
-        .then(function() {
+        await utils.setMixpanelToken(page, 'test-token');
 
-            // send events
-            return page.evaluate(function (events) {
+        // send events
+        for (i = 0, l = eventsToSend.length; i < l; i++) {
+            await utils.sendMixpanelEvent(page, eventsToSend[i].eventName, eventsToSend[i].data);
+        }
 
-                for (var ii = 0, ll = events.length; ii < ll; ii++) {
-                    window.mixpanel.track(events[ii].eventName, events[ii].data);
-                }
+        // get value of local storage
+        var data = await utils.getMixpanelLocalStorage(page);
 
-            }, eventsToSend);
-        })
-        .then(function() {
+        // check the tracking data was saved to local storage
+        expect(data).toBeDefined();
+        expect(Array.isArray(data)).toBe(true);
+        expect(data.length).toEqual(eventsToSend.length);
 
-            // get value of local storage
-            return page.evaluate(function () {
-                return JSON.parse(localStorage.getItem('mixpanel-lite') || {});
-            });
-        })
-        .then(function(data) {
+        var firstEvent = data[0];
+        var lastEvent = data[data.length - 1];
 
-            // check the tracking data was saved to local storage
-            expect(data).toBeDefined();
-            expect(Array.isArray(data)).toBe(true);
-            expect(data.length).toEqual(eventsToSend.length);
+        // check first event
+        expect(firstEvent.event).toEqual(eventsToSend[0].eventName);
+        expect(firstEvent.properties.index).toEqual(eventsToSend[0].data.index);
 
-            var firstEvent = data[0];
-            var lastEvent = data[data.length - 1];
+        // check last event
+        expect(lastEvent.event).toEqual(eventsToSend[eventsToSend.length - 1].eventName);
+        expect(lastEvent.properties.index).toEqual(eventsToSend[eventsToSend.length - 1].data.index);
+    });
 
-            // check first event
-            expect(firstEvent.eventName).toEqual(eventsToSend[0].event);
-            expect(firstEvent.properties.index).toEqual(eventsToSend[0].data.index);
+    it('should add .offline=true for events captured offline', async function() {
 
-            // check last event
-            expect(lastEvent.eventName).toEqual(eventsToSend[eventsToSend.length - 1].event);
-            expect(lastEvent.properties.index).toEqual(eventsToSend[eventsToSend.length - 1].data.index);
-        });
+        // create some tracking events
+        var event1 = {
+            name: `event-${cuid.slug()}`,
+            data: {
+                age: utils.randomInteger(8, 33)
+            }
+        };
+        var event2 = {
+            name: `event-${cuid.slug()}`,
+            data: {
+                age: utils.randomInteger(8, 33)
+            }
+        };
+
+        // setup request intercept
+        await page.setRequestInterception(true);
+
+        // setup mixpanel
+        await utils.setMixpanelToken(page, 'test-token');
+
+        // listen for track requests
+        var trackRequests = utils.waitForPuppeteerRequests(page, 2, 'https://api.mixpanel.com/track');
+
+        // send event (in online mode)
+        await utils.sendMixpanelEvent(page, event1.name, event1.data);
+
+        // go offline
+        await page.setOfflineMode(true);
+
+        // send event (in offline mode)
+        await utils.sendMixpanelEvent(page, event2.name, event2.data);
+
+        // go back online
+        await page.setOfflineMode(false);
+
+        // Now wait for both requests to be sent
+        var results = await trackRequests;
+
+        // decode the data and convert to JSON object so we can inspect
+        var eventPayload1 = utils.getJsonPayloadFromMixpanelUrl(results[0].url);
+        var eventPayload2 = utils.getJsonPayloadFromMixpanelUrl(results[1].url);
+
+        expect(eventPayload1.event).toEqual(event1.name);
+        expect(eventPayload1.properties.offline).toEqual(undefined);
+
+        expect(eventPayload2.event).toEqual(event2.name);
+        expect(eventPayload2.properties.offline).toEqual(true);
     });
 });

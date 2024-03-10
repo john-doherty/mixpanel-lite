@@ -112,6 +112,21 @@
             }
         });
 
+        // track online status
+        if (!window.navigator.onLine) {
+            eventData.properties.offline = true;
+        }
+
+        var isAutomated = isBrowserAutomated();
+        if (isAutomated) {
+            eventData.properties.automated = true;
+        }
+
+        var isDevMode = isDevEnviroment();
+        if (isDevMode) {
+            eventData.properties.dev = true;
+        }
+
         // save the event
         transactions.add(eventData);
 
@@ -514,18 +529,8 @@
     }
 
     /**
-     * Get advertising click IDs from the URL.
-     * 
+     * Get advertising click IDs from the URL
      * @returns {Object} An object containing the advertising click IDs found in the URL. The object can have the following properties:
-     * - facebookClickId {string}: for tracking interactions with Facebook ads
-     * - doubleClickId {string}: for tracking ads served by Google's DoubleClick
-     * - googleClickId {string}: for tracking Google Ads campaigns
-     * - genericClickId {string}: for tracking clicks on certain advertising platforms
-     * - linkedInClickId {string}: for tracking interactions with LinkedIn ads
-     * - microsoftClickId {string}: for tracking interactions with Microsoft Advertising
-     * - tikTokClickId {string}: for tracking interactions with TikTok ads
-     * - twitterClickId {string}: for tracking interactions with Twitter ads
-     * - webBrowserReferrerId {string}: for tracking sources of traffic or conversions.
      * Each property is included only if its corresponding param exists
      */
     function getAdvertisingClickIDs() {
@@ -533,15 +538,15 @@
         var urlParams = new URLSearchParams(window.location.search || '');
         var clickIDs = {};
 
-        if (urlParams.has('dclid')) clickIDs.doubleClickId = urlParams.get('dclid');
-        if (urlParams.has('fbclid')) clickIDs.facebookClickId = urlParams.get('fbclid');
-        if (urlParams.has('gclid')) clickIDs.googleClickId = urlParams.get('gclid');
-        if (urlParams.has('ko_click_id')) clickIDs.genericClickId = urlParams.get('ko_click_id');
-        if (urlParams.has('li_fat_id')) clickIDs.linkedInClickId = urlParams.get('li_fat_id');
-        if (urlParams.has('msclkid')) clickIDs.microsoftClickId = urlParams.get('msclkid');
-        if (urlParams.has('ttclid')) clickIDs.tikTokClickId = urlParams.get('ttclid');
-        if (urlParams.has('twclid')) clickIDs.twitterClickId = urlParams.get('twclid');
-        if (urlParams.has('wbraid')) clickIDs.webBrowserReferrerId = urlParams.get('wbraid');
+        if (urlParams.has('dclid')) clickIDs.dclid = urlParams.get('dclid');
+        if (urlParams.has('fbclid')) clickIDs.fbclid = urlParams.get('fbclid');
+        if (urlParams.has('gclid')) clickIDs.gclid = urlParams.get('gclid');
+        if (urlParams.has('ko_click_id')) clickIDs.ko_click_id = urlParams.get('ko_click_id');
+        if (urlParams.has('li_fat_id')) clickIDs.li_fat_id = urlParams.get('li_fat_id');
+        if (urlParams.has('msclkid')) clickIDs.msclkid = urlParams.get('msclkid');
+        if (urlParams.has('ttclid')) clickIDs.ttclid = urlParams.get('ttclid');
+        if (urlParams.has('twclid')) clickIDs.twclid = urlParams.get('twclid');
+        if (urlParams.has('wbraid')) clickIDs.wbraid = urlParams.get('wbraid');
 
         return Object.keys(clickIDs).length > 0 ? clickIDs : null;
     }
@@ -585,6 +590,59 @@
             navigator.browserLanguage ||
             navigator.systemLanguage ||
             'en'; // Default to English if none is found
+    }
+
+    /**
+     * Determines if the current browser session is controlled by automation software
+     * @example
+     * if (isBrowserAutomated()) {
+     *     console.log('The browser is automated.');
+     * } else {
+     *     console.log('The browser is not automated.');
+     * }
+     * @returns {boolean} true if the browser session is controlled by automation software, otherwise false.
+     */
+    function isBrowserAutomated() {
+
+        // Check for PhantomJS
+        if (window._phantom || window.phantom) {
+            return true;
+        }
+
+        // Check for Nightmare
+        if (window.__nightmare) {
+            return true;
+        }
+
+        // Check for WebDriver (Puppeteer, Selenium)
+        if (navigator.webdriver) {
+            return true;
+        }
+
+        // Check for Cypress
+        if (window.Cypress) {
+            return true;
+        }
+
+        // Check for headless Chrome
+        if (/HeadlessChrome/.test(window.navigator.userAgent)) {
+            return true;
+        }
+
+        // Check for reduced screen size (common in headless environments)
+        if (screen.width === 0 || screen.height === 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the script is running locally
+     * @returns {boolean} true if running locally, otherwise false
+     */
+    function isDevEnviroment() {
+        return (/^localhost$|^127(\.[0-9]+){0,2}\.[0-9]+$|^\[::1?\]$/.test(location.hostname) || location.protocol === 'file:');
     }
 
     /**
@@ -641,20 +699,26 @@
      */
     function getNewUUID() {
 
-        // Time/ticks information
-        // 1*new Date() is a cross browser version of Date.now()
-        var T = function () {
-            var d = 1 * new Date(),
-                i = 0;
+        // Time-based entropy
+        var T = function() {
+            var time = 1 * new Date(); // cross-browser version of Date.now()
+            var ticks;
+            if (window.performance && window.performance.now) {
+                ticks = window.performance.now();
+            }
+            else {
+                // fall back to busy loop
+                ticks = 0;
 
-            // this while loop figures how many browser ticks go by
-            // before 1*new Date() returns a new number, ie the amount
-            // of ticks that go by per millisecond
-            while (d == 1 * new Date()) {
-                i++;
+                // this while loop figures how many browser ticks go by
+                // before 1*new Date() returns a new number, ie the amount
+                // of ticks that go by per millisecond
+                while (time == 1 * new Date()) {
+                    ticks++;
+                }
             }
 
-            return d.toString(16) + i.toString(16);
+            return time.toString(16) + Math.floor(ticks).toString(16);
         };
 
         // Math.Random entropy
@@ -834,7 +898,7 @@
 
         var advertParams = getAdvertisingClickIDs();
         if (advertParams) {
-            _properties.advert = advertParams;
+            _properties.ad = advertParams;
         }
 
         // only track page URLs (not file etc)
