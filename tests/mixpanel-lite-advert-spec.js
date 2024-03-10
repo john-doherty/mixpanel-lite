@@ -68,14 +68,14 @@ describe('mixpanel-lite UTM', function () {
                     expect(data.properties.distinct_id).toBeDefined();
                     expect(data.properties.$browser).toEqual('Chrome');
                     expect(data.properties.token).toEqual(token);
-                    expect(data.properties.advert.doubleClickId).toEqual('randomDclidValue');
-                    expect(data.properties.advert.facebookClickId).toEqual('randomFbclidValue');
-                    expect(data.properties.advert.genericClickId).toEqual('randomKoClickIdValue');
-                    expect(data.properties.advert.linkedInClickId).toEqual('randomLiFatIdValue');
-                    expect(data.properties.advert.microsoftClickId).toEqual('randomMsclkidValue');
-                    expect(data.properties.advert.tikTokClickId).toEqual('randomTtclidValue');
-                    expect(data.properties.advert.twitterClickId).toEqual('randomTwclidValue');
-                    expect(data.properties.advert.webBrowserReferrerId).toEqual('randomWbraidValue');
+                    expect(data.properties.ad.dclid).toEqual('randomDclidValue');
+                    expect(data.properties.ad.fbclid).toEqual('randomFbclidValue');
+                    expect(data.properties.ad.ko_click_id).toEqual('randomKoClickIdValue');
+                    expect(data.properties.ad.li_fat_id).toEqual('randomLiFatIdValue');
+                    expect(data.properties.ad.msclkid).toEqual('randomMsclkidValue');
+                    expect(data.properties.ad.ttclid).toEqual('randomTtclidValue');
+                    expect(data.properties.ad.twclid).toEqual('randomTwclidValue');
+                    expect(data.properties.ad.wbraid).toEqual('randomWbraidValue');
 
                     resolve(); // Resolve the promise after assertions
                 }
@@ -127,7 +127,7 @@ describe('mixpanel-lite UTM', function () {
                     expect(data.properties.$browser).toEqual('Chrome');
                     expect(data.properties.token).toEqual(token);
 
-                    expect(data.properties.advert).toBeUndefined();
+                    expect(data.properties.ad).toBeUndefined();
 
                     resolve(); // Resolve the promise after assertions
                 }

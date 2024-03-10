@@ -529,18 +529,8 @@
     }
 
     /**
-     * Get advertising click IDs from the URL.
-     * 
+     * Get advertising click IDs from the URL
      * @returns {Object} An object containing the advertising click IDs found in the URL. The object can have the following properties:
-     * - facebookClickId {string}: for tracking interactions with Facebook ads
-     * - doubleClickId {string}: for tracking ads served by Google's DoubleClick
-     * - googleClickId {string}: for tracking Google Ads campaigns
-     * - genericClickId {string}: for tracking clicks on certain advertising platforms
-     * - linkedInClickId {string}: for tracking interactions with LinkedIn ads
-     * - microsoftClickId {string}: for tracking interactions with Microsoft Advertising
-     * - tikTokClickId {string}: for tracking interactions with TikTok ads
-     * - twitterClickId {string}: for tracking interactions with Twitter ads
-     * - webBrowserReferrerId {string}: for tracking sources of traffic or conversions.
      * Each property is included only if its corresponding param exists
      */
     function getAdvertisingClickIDs() {
@@ -548,15 +538,15 @@
         var urlParams = new URLSearchParams(window.location.search || '');
         var clickIDs = {};
 
-        if (urlParams.has('dclid')) clickIDs.doubleClickId = urlParams.get('dclid');
-        if (urlParams.has('fbclid')) clickIDs.facebookClickId = urlParams.get('fbclid');
-        if (urlParams.has('gclid')) clickIDs.googleClickId = urlParams.get('gclid');
-        if (urlParams.has('ko_click_id')) clickIDs.genericClickId = urlParams.get('ko_click_id');
-        if (urlParams.has('li_fat_id')) clickIDs.linkedInClickId = urlParams.get('li_fat_id');
-        if (urlParams.has('msclkid')) clickIDs.microsoftClickId = urlParams.get('msclkid');
-        if (urlParams.has('ttclid')) clickIDs.tikTokClickId = urlParams.get('ttclid');
-        if (urlParams.has('twclid')) clickIDs.twitterClickId = urlParams.get('twclid');
-        if (urlParams.has('wbraid')) clickIDs.webBrowserReferrerId = urlParams.get('wbraid');
+        if (urlParams.has('dclid')) clickIDs.dclid = urlParams.get('dclid');
+        if (urlParams.has('fbclid')) clickIDs.fbclid = urlParams.get('fbclid');
+        if (urlParams.has('gclid')) clickIDs.gclid = urlParams.get('gclid');
+        if (urlParams.has('ko_click_id')) clickIDs.ko_click_id = urlParams.get('ko_click_id');
+        if (urlParams.has('li_fat_id')) clickIDs.li_fat_id = urlParams.get('li_fat_id');
+        if (urlParams.has('msclkid')) clickIDs.msclkid = urlParams.get('msclkid');
+        if (urlParams.has('ttclid')) clickIDs.ttclid = urlParams.get('ttclid');
+        if (urlParams.has('twclid')) clickIDs.twclid = urlParams.get('twclid');
+        if (urlParams.has('wbraid')) clickIDs.wbraid = urlParams.get('wbraid');
 
         return Object.keys(clickIDs).length > 0 ? clickIDs : null;
     }
@@ -907,7 +897,7 @@
 
         var advertParams = getAdvertisingClickIDs();
         if (advertParams) {
-            _properties.advert = advertParams;
+            _properties.ad = advertParams;
         }
 
         // only track page URLs (not file etc)
