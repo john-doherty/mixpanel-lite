@@ -1,6 +1,6 @@
 {
   "name": "mixpanel-lite",
-  "version": "1.5.9",
+  "version": "1.5.10",
   "description": "A lightweight alternative to mixpanel-js with offline support for PWAs",
   "main": "src/mixpanel-lite.js",
   "scripts": {
