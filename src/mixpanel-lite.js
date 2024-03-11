@@ -126,6 +126,11 @@
             eventData.properties.dev = true;
         }
 
+        var isBotRunner = isBot();
+        if (isBotRunner) {
+            eventData.properties.bot = true;
+        }
+
         // save the event
         transactions.add(eventData);
 
@@ -722,6 +727,50 @@
         // Check for reduced screen size (common in headless environments)
         if (screen.width === 0 || screen.height === 0) {
             return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the user agent is from a known bot
+     * @param {string} userAgent The user agent string to check.
+     * @return {boolean} True if the user agent is from a known bot, false otherwise.
+     */
+    function isBot() {
+
+        var ua = String(navigator.userAgent || '').toLowerCase();
+
+        var botUAs = [
+            'ahrefsbot',
+            'ahrefssiteaudit',
+            'baiduspider',
+            'bingbot',
+            'bingpreview',
+            'chrome-lighthouse',
+            'facebookexternal',
+            'petalbot',
+            'pinterest',
+            'screaming frog',
+            'yahoo! slurp',
+            'yandexbot',
+            'adsbot-google',
+            'apis-google',
+            'duplexweb-google',
+            'feedfetcher-google',
+            'google favicon',
+            'google web preview',
+            'google-read-aloud',
+            'googlebot',
+            'googleweblight',
+            'mediapartners-google',
+            'storebot-google'
+        ];
+        
+        for (var i = 0; i < botUAs.length; i++) {
+            if (ua.indexOf(botUAs[i]) !== -1) {
+                return true;
+            }
         }
 
         return false;
