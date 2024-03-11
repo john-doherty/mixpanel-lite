@@ -93,4 +93,37 @@ describe('mixpanel-lite: ids', function () {
         // should have same device_id (second call, gets value from localStorage)
         expect(eventPayload2.properties.$device_id).toEqual(eventPayload1.properties.$device_id);
     });
+
+    it('should use a unique $insert_id for each event', async function() {
+
+        // setup request intercept
+        await page.setRequestInterception(true);
+
+        // setup mixpanel
+        await utils.setMixpanelToken(page, 'test-token');
+
+        // listen for track requests
+        var trackRequests = utils.waitForPuppeteerRequests(page, 2, 'https://api.mixpanel.com/track');
+
+        // send events
+        await utils.sendMixpanelEvent(page, 'event1', { eventNumber: 1 });
+        await utils.sendMixpanelEvent(page, 'event2', { eventNumber: 2 });
+        await utils.sendMixpanelEvent(page, 'event3', { eventNumber: 3 });
+
+        // wait for requests to be sent
+        var results = await trackRequests;
+
+        // get the data sent via tracking request
+        var eventPayload1 = utils.getJsonPayloadFromMixpanelUrl(results[0].url);
+        var eventPayload2 = utils.getJsonPayloadFromMixpanelUrl(results[1].url);
+
+        // should have the correct event names
+        expect(eventPayload1.event).toEqual('event1');
+        expect(eventPayload2.event).toEqual('event2');
+
+        // should have different $insert_id values
+        expect(eventPayload1.properties.$insert_id).toBeDefined();
+        expect(eventPayload2.properties.$insert_id).toBeDefined();
+        expect(eventPayload1.properties.$insert_id).not.toEqual(eventPayload2.properties.$insert_id);
+    });
 });
