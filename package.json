@@ -18,8 +18,9 @@
   },
   "keywords": [
     "mixpanel",
-    "offline",
-    "pwa"
+    "analytics",
+    "pwa",
+    "offline"
   ],
   "author": "John Doherty <contact@johndoherty.info> (www.johndoherty.info)",
   "license": "MIT",
