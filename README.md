@@ -66,6 +66,7 @@ Name        | Type      | Description
 `dev`       | `boolean` | `true` if event captured when running locally
 `ad`        | `object`  | object containing online ad click ids
 `utm`       | `object`  | object containing UTM tracking values
+`bot`       | `boolean` | `true` if script executing via a bot request
 
 ## Contributing
 
