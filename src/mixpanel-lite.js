@@ -313,15 +313,15 @@
             // mark sending complete
             _sending = false;
         })
-            .catch(function (err) {
+        .catch(function (err) {
 
-                if (_debugging) {
-                    console.log(err);
-                }
+            if (_debugging) {
+                console.log(err);
+            }
 
-                // something went wrong, allow this method to be recalled
-                _sending = false;
-            });
+            // something went wrong, allow this method to be recalled
+            _sending = false;
+        });
     }
 
     /* #region Helpers */
@@ -961,7 +961,12 @@
         _token = token;
         _debugging = (opts.debug === true);
 
-        var uuid = getNewUUID();
+        var distinctId = getNewUUID();
+        var deviceId = simpleStorage.get('device_id') || getNewUUID();
+
+        if (!simpleStorage.exists('device_id')) {
+            simpleStorage.set('device_id', deviceId);
+        }
 
         // params -> https://help.mixpanel.com/hc/en-us/articles/115004613766-Default-Properties-Collected-by-Mixpanel
         _properties = {
@@ -974,8 +979,8 @@
             $screen_width: screen.width,
             $referrer: document.referrer,
             $referring_domain: getReferringDomain(),
-            distinct_id: uuid,
-            $device_id: uuid,
+            distinct_id: distinctId,
+            $device_id: deviceId,
             mp_lib: 'mixpanel-lite',
             $lib_version: '0.0.0',
             language: getBrowserLanguage()

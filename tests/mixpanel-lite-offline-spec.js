@@ -7,7 +7,7 @@ var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
 var browser = null;
 
-describe('mixpanel-lite .offline', function () {
+describe('mixpanel-lite: .offline', function () {
 
     // create a new browser instance before each test
     beforeEach(async function () {

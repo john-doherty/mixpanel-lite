@@ -5,7 +5,7 @@ var url = 'file://' + path.join(__dirname, 'environment.html');
 var page = null;
 var browser = null;
 
-describe('mixpanel-lite interface', function () {
+describe('mixpanel-lite: interface', function () {
 
     // create a new browser instance before each test
     beforeEach(async function () {
