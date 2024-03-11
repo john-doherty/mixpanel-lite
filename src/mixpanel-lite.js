@@ -764,9 +764,30 @@
             'googlebot',
             'googleweblight',
             'mediapartners-google',
-            'storebot-google'
+            'storebot-google',
+            'twitterbot',
+            'coccocbot',
+            'duckduckbot',
+            'barkrowler',
+            'applebot',
+            'tweetmemebot',
+            'bitlybot',
+            'linkdexbot',
+            'linkedinbot',
+            'mj12bot',
+            'seznambot',
+            'slurp',
+            'sogou',
+            'teoma',
+            'yandex',
+            'alexabot',
+            'semrushbot',
+            'ubot',
+            'crawler',
+            'spider',
+            'exabot'
         ];
-        
+
         for (var i = 0; i < botUAs.length; i++) {
             if (ua.indexOf(botUAs[i]) !== -1) {
                 return true;
